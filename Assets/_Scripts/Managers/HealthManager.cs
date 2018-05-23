@@ -1,4 +1,4 @@
-﻿using Life;
+﻿using Survival.UI;
 using UnityEngine;
 
 namespace Managers

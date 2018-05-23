@@ -17,8 +17,8 @@ namespace Survival
 
         //protected int m_HurtIndex;
 
-        public float MaxHealth { get { return m_MaxHealth; } }
-        public float CurrentHealth { get { return m_CurrentHealth; } }
+        public float MaxShield { get { return m_MaxHealth; } }
+        public float CurrentShield { get { return m_CurrentHealth; } }
 
         //An Action event that informs subscribers when health has changed
         public virtual event Action<float> HealthChange;

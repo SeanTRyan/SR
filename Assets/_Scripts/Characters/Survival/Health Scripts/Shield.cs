@@ -13,44 +13,69 @@ namespace Survival
     [Serializable]
     public class Shield : MonoBehaviour, IHealth, IDamagable
     {
-        [SerializeField] [Range(0f, 2000f)] private float m_MaxHealth = 100f;
+        [SerializeField] [Range(0f, 2000f)] private float m_MaxShield = 100f;
+        [SerializeField] private float m_ShieldReplenishRate;
+        [SerializeField] private float m_ShieldDepleteRate;
 
         //Allows the character to not be effected by hits as much
-        [SerializeField] protected float hitResist = 10f;
-
-        private float m_CurrentHealth;
+        [SerializeField] private float m_HitResist = 10f;
 
         public event Action<float> HealthChange;
 
-        public bool Shielding { get; protected set; }
+        private Animator m_ShieldAnimator;
 
-        public float CurrentHealth { get { return m_CurrentHealth; } }
-        public float MaxHealth { get { return m_MaxHealth; } }
+        public bool Shielding { get; private set; }
+        public float CurrentShield { get; private set; }
+        public float MaxShield { get { return m_MaxShield; } }
 
         private void Awake()
         {
-            m_CurrentHealth = m_MaxHealth;
+            CurrentShield = m_MaxShield;
+
+            m_ShieldAnimator = GetComponent<Animator>();
+        }
+
+        public void Execute(bool shield)
+        {
+            if (shield)
+                TakeDamage(m_ShieldDepleteRate);
+            else
+                RestoreHealth(m_ShieldReplenishRate);
+
+            Shielding = (shield && CurrentShield > 0);
+
+            AnimateShield(Shielding);
         }
 
         public void TakeDamage(float damage)
         {
-            if (m_CurrentHealth <= 0f)
+            if (CurrentShield <= 0f)
             {
-                m_CurrentHealth = 0f;
-
+                CurrentShield = 0f;
                 return;
             }
 
-            m_CurrentHealth -= damage;
+            CurrentShield -= damage;
 
-            HealthChange?.Invoke(m_CurrentHealth);
+            HealthChange?.Invoke(CurrentShield);
         }
-
-        public virtual void Execute(bool shield) { }
 
         public void RestoreHealth(float restoreAmount)
         {
-            m_CurrentHealth += restoreAmount;
+            if (CurrentShield >= m_MaxShield)
+            {
+                CurrentShield = m_MaxShield;
+                return;
+            }
+
+            CurrentShield += restoreAmount;
+
+            HealthChange?.Invoke(CurrentShield);
+        }
+
+        private void AnimateShield(bool shield)
+        {
+            m_ShieldAnimator.SetBool("Shielding", shield);
         }
     }
 }

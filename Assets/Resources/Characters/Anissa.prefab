@@ -597,13 +597,15 @@ GameObject:
   - component: {fileID: 114157785942646676}
   - component: {fileID: 114458410379642898}
   - component: {fileID: 114085419621923838}
-  - component: {fileID: 114044384063931698}
-  - component: {fileID: 114435610799617596}
   - component: {fileID: 114762048407470476}
+  - component: {fileID: 114760522083466836}
+  - component: {fileID: 114435610799617596}
   - component: {fileID: 114696805462416252}
-  - component: {fileID: 114836095259569896}
   - component: {fileID: 114919374161467312}
+  - component: {fileID: 114836095259569896}
   - component: {fileID: 114974814056643594}
+  - component: {fileID: 114044384063931698}
+  - component: {fileID: 114472241566931886}
   m_Layer: 9
   m_Name: Anissa
   m_TagString: Player
@@ -13988,7 +13990,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cbb205dc824bae488b8e28ec0cf550e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ImmunityLength: 2
+  m_ImmunityLength: 0.23
 --- !u!114 &114458410379642898
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -14083,6 +14085,20 @@ MonoBehaviour:
         attackDirection: {x: 0, y: 0, z: 0}
         knockback: 0
       hitbox: {fileID: 114131089020417368}
+--- !u!114 &114472241566931886
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1135294019476302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77b368688b3748d499b8c8bdf43bf469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RollSpeed: 15
+  m_RollLength: 1
+  m_SpotDodgeLength: 1
 --- !u!114 &114560405299703136
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -14146,6 +14162,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_NumberOfLives: 3
+--- !u!114 &114760522083466836
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1135294019476302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6266e3f042777b745b00c4ea757fc07a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MaxShield: 100
+  m_ShieldReplenishRate: 0.2
+  m_ShieldDepleteRate: 0.2
+  m_HitResist: 10
 --- !u!114 &114762048407470476
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -14234,7 +14265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8113b228856dafd43b89bdbf5ebeeb01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_StunLength: 0
+  m_StunLength: 2
   m_FreezeLength: 0
 --- !u!114 &114920946331267160
 MonoBehaviour:

@@ -1,4 +1,5 @@
-﻿using Survival;
+﻿using Broadcasts;
+using Survival;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,7 +9,7 @@ namespace Effectors
     /// <summary>
     /// Component that handles stuns and freezes
     /// </summary>
-    public class Stun : MonoBehaviour
+    public class Stun : MonoBehaviour, IBroadcast
     {
         [SerializeField] private float m_StunLength = 0f;
         [SerializeField] private float m_FreezeLength = 0f;
@@ -18,11 +19,13 @@ namespace Effectors
         private void OnEnable()
         {
             GetComponent<IHealth>().HealthChange += Freeze;
+            GetComponent<Shield>().HealthChange += ShieldStun;
         }
 
         private void OnDisable()
         {
             GetComponent<IHealth>().HealthChange -= Freeze;
+            GetComponent<Shield>().HealthChange -= ShieldStun;
         }
 
         private void Freeze(float damage)
@@ -40,16 +43,30 @@ namespace Effectors
             //Play another message to indicate that the character is not longer stunned
         }
 
+        private void ShieldStun(float currentShield)
+        {
+            if (currentShield <= 0f)
+            {
+                StopCoroutine(StunRoutine(m_StunLength));
+                StartCoroutine(StunRoutine(m_StunLength));
+            }
+        }
+
         public void StartStun(float stunLength)
         {
-
+            StopCoroutine(StunRoutine(stunLength));
+            StartCoroutine(StunRoutine(stunLength));
         }
 
         private IEnumerator StunRoutine(float stunLength)
         {
             IsStunned = true;
+            Broadcast.Send<IBroadcast>(gameObject, (x, y) => x.Inform(Broadcasts.BroadcastMessage.Stunned));
             yield return new WaitForSeconds(stunLength);
+            Broadcast.Send<IBroadcast>(gameObject, (x, y) => x.Inform(Broadcasts.BroadcastMessage.None));
             IsStunned = false;
         }
+
+        public void Inform(BroadcastMessage message) { }
     }
 }

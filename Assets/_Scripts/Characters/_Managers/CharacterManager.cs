@@ -1,4 +1,5 @@
 ﻿using Actions;
+using Broadcasts;
 using Controls;
 using Managers;
 using Movements;
@@ -10,9 +11,11 @@ namespace Characters
     /// <summary>
     /// Controller class for the character.
     /// </summary>
-    public class CharacterManager : MonoBehaviour
+    public class CharacterManager : MonoBehaviour, IBroadcast
     {
         [SerializeField] private PlayerNumber m_PlayerNumber;
+
+        private BroadcastMessage m_Message;
 
         //All of the different character components 
         private Jump m_Jump;
@@ -20,7 +23,7 @@ namespace Characters
         private CharacterAttack m_Attack;
         private Health m_Health;
         private Shield m_Shield;
-        private CharacterEvasion m_Evasion;
+        private Evasion m_Evasion;
         private Gravity m_Gravity;
 
         #region Controls
@@ -52,7 +55,7 @@ namespace Characters
             m_Jump = GetComponent<Jump>();
             m_Movement = GetComponent<Movement>();
             m_Attack = GetComponent<CharacterAttack>();
-            m_Evasion = GetComponent<CharacterEvasion>();
+            m_Evasion = GetComponent<Evasion>();
             m_Health = GetComponent<Health>();
             m_Shield = GetComponent<Shield>();
             m_Gravity = GetComponent<Gravity>();
@@ -66,25 +69,25 @@ namespace Characters
             m_Device = InputManager.GetDevice(playerNumber);
         }
 
-        #region Updates
         private void Update()
         {
+            if (m_Message == Broadcasts.BroadcastMessage.Stunned)
+                return;
+
             if (Stop || m_Device == null)
                 return;
 
-            DeviceExecute();
+            ExecuteDevice();
 
-            JumpExecute();
+            ExecuteJump();
 
-            AttackExecute();
+            ExecuteAttack();
 
-            ShieldExecute();
+            ExecuteShield();
         }
 
-        private void DeviceExecute()
+        private void ExecuteDevice()
         {
-            //m_Device.Execute();
-
             float horizontal = m_Device.LeftHorizontal.Value;
             float vertical = m_Device.LeftVertical.Value;
 
@@ -93,16 +96,17 @@ namespace Characters
 
         private void FixedUpdate()
         {
-            UpdateGravity();
+            if (m_Message == Broadcasts.BroadcastMessage.Stunned)
+                return;
 
-            MoveUpdate();
+            ExecuteGravity();
 
-            EvadeUpdate();
+            ExecuteMove();
+
+            ExecuteEvade();
         }
-        #endregion
 
-        #region Jump
-        private void JumpExecute()
+        private void ExecuteJump()
         {
             if (!m_Jump)
                 return;
@@ -114,20 +118,16 @@ namespace Characters
 
             m_Jump.Fall(transform.position.y);
         }
-        #endregion
 
-        #region Movement
-        private void MoveUpdate()
+        private void ExecuteMove()
         {
             if (m_Movement == null)
                 return;
 
             m_Movement.Move(m_Move);
         }
-        #endregion
 
-        #region Combat
-        private void AttackExecute()
+        private void ExecuteAttack()
         {
             if (!m_Attack)
                 return;
@@ -148,33 +148,16 @@ namespace Characters
             attackID = (m_Device.Action1.Press && m_Device.LeftVertical.Value < -0.1) ? downAttack : attackID;
             attackID = (m_Device.Action1.Press && m_Device.LeftVertical.Value > 0.1) ? upAttack : attackID;
         }
-        #endregion
 
-        #region Evasion
-        private void EvadeUpdate()
+        private void ExecuteEvade()
         {
             if (!m_Evasion || !m_Shield)
                 return;
 
-            EvasionMode evasionMode = EvasionMode.None;
-            int evasionIndex = 0;
-
-            //evasionIndex = (m_Shield.Shielding && m_Device.LeftVertical.Value < -0.35) ? 1 : evasionIndex;
-            //evasionIndex = (m_Shield.Shielding && m_Device.LeftHorizontal.Value * transform.forward.x > 0.35f) ? 2 : evasionIndex;
-            //evasionIndex = (m_Shield.Shielding && m_Device.LeftHorizontal.Value * transform.forward.x < -0.35f) ? 3 : evasionIndex;
-
-            evasionMode = (evasionIndex == 1) ? EvasionMode.Dodge : evasionMode;
-            evasionMode = (evasionIndex == 2) ? EvasionMode.RollForward : evasionMode;
-            evasionMode = (evasionIndex == 3) ? EvasionMode.RollBackward : evasionMode;
-
-            m_Evasion.Execute(evasionMode, m_Move.x);
-
-            m_Evasion.AnimateEvasion(evasionIndex);
+            m_Evasion.Execute(m_Move, m_Shield.Shielding);
         }
-        #endregion
 
-        #region Survival
-        private void ShieldExecute()
+        private void ExecuteShield()
         {
             if (!m_Shield)
                 return;
@@ -183,23 +166,18 @@ namespace Characters
 
             m_Shield.Execute(m_Device.R1.Hold);
         }
-        #endregion
 
-        #region Gravity
-        private void UpdateGravity()
+        private void ExecuteGravity()
         {
             if (!m_Gravity)
                 return;
 
             m_Gravity.Execute();
         }
-        #endregion
 
-        #region Animations
-        private void Animate()
+        public void Inform(BroadcastMessage message)
         {
-
+            m_Message = message;
         }
-        #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Boxes;
+using Characters;
 using Survival;
 using System;
 using System.Collections;
@@ -32,23 +33,36 @@ namespace Effectors
         private void OnEnable()
         {
             GetComponent<IHealth>().HealthChange += HealthChange;
+            GetComponent<Evasion>().EvasionEvent += Immune;
         }
 
         private void OnDisable()
         {
             GetComponent<IHealth>().HealthChange -= HealthChange;
+            GetComponent<Evasion>().EvasionEvent -= Immune;
+        }
+
+        private void Immune(bool immune, float immunityLength)
+        {
+            if(immune)
+            {
+                StopCoroutine(MakeImmune(immunityLength));
+                StartCoroutine(MakeImmune(immunityLength));
+            }
         }
 
         private void HealthChange(float currentHealth)
         {
-            StopCoroutine(MakeImmune());
-            StartCoroutine(MakeImmune());
+            StopCoroutine(MakeImmune(m_ImmunityLength));
+            StartCoroutine(MakeImmune(m_ImmunityLength));
         }
 
-        private IEnumerator MakeImmune()
+        private IEnumerator MakeImmune(float immunityLength)
         {
             EnableHurtboxes(false);
-            yield return new WaitForSeconds(m_ImmunityLength);
+            gameObject.layer = (int)Layer.PlayerDynamic;
+            yield return new WaitForSeconds(immunityLength);
+            gameObject.layer = (int)Layer.PlayerStatic;
             EnableHurtboxes(true);
         }
 

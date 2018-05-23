@@ -1,47 +1,35 @@
-﻿using Survival;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
-namespace Life
+namespace Survival.UI
 {
     /// <summary>
     /// Class for displaying the health.
     /// </summary>
-    [Serializable]
     public class HealthUI : MonoBehaviour
     {
         //Visuals for displaying the health bar.
-        [SerializeField] protected GameObject m_HealthMain = null;
-        [SerializeField] protected GameObject m_Healthbackground = null;
+        [SerializeField] private Image m_HealthForeground;
+        [SerializeField] private Image m_HealthSecondary;
+        [SerializeField] private Image m_HealthBackground;
 
         //Smoothing for the health decrease
         [SerializeField] protected float m_SmoothDamp = 0.3f;
 
-        protected float m_HealthVelocity = 0f;
+        private float m_HealthVelocity = 0f;
 
-        protected float m_MaxHealth;
-        protected float m_TargetHealth;
-        protected float m_PreviousHealth;
-
-        protected Animator m_HealthAnimator = null;
-
-        protected virtual void Awake()
-        {
-            m_HealthMain = Instantiate(m_HealthMain, transform, false);
-            m_Healthbackground = Instantiate(m_Healthbackground, transform, false);
-
-            m_HealthAnimator = m_HealthMain.GetComponent<Animator>();
-        }
+        private float m_MaxHealth;
+        private float m_TargetHealth;
+        private float m_PreviousHealth;
 
         //Initialises the health and subscribes it to a character's health
-        public virtual void Initialise(IHealth healthRef)
+        public void Initialise(IHealth healthRef)
         {
-            m_MaxHealth = healthRef.MaxHealth;
+            m_MaxHealth = healthRef.MaxShield;
             m_PreviousHealth = m_TargetHealth = (m_MaxHealth / m_MaxHealth);
+
+            m_HealthSecondary.fillAmount = m_HealthForeground.fillAmount = m_PreviousHealth;
 
             healthRef.HealthChange += (d) =>
             {
@@ -54,19 +42,15 @@ namespace Life
 
         private IEnumerator DecreaseHealth()
         {
+            m_HealthForeground.fillAmount = m_TargetHealth;
             while (m_PreviousHealth != m_TargetHealth)
             {
                 m_PreviousHealth = Mathf.SmoothDamp(m_PreviousHealth, m_TargetHealth, ref m_HealthVelocity, m_SmoothDamp);
 
-                AnimateHealth(m_HealthAnimator, m_PreviousHealth);
+                m_HealthSecondary.fillAmount = m_PreviousHealth;
+
                 yield return null;
             }
-        }
-
-        //Animates the decrease of health
-        protected virtual void AnimateHealth(Animator healthAnimator, float targetHealth)
-        {
-            healthAnimator.SetFloat("Current Health", targetHealth);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Survival;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -12,8 +13,11 @@ namespace Characters
     {
         [SerializeField] private byte m_NumberOfLives = 2;
 
-        public byte NumberOfLive { get { return m_NumberOfLives; } }
+        public byte NumberOfLives { get { return m_NumberOfLives; } }
         public bool Dead { get; private set; }
+
+        public delegate void DeathDelegate(byte numberOfLives);
+        public event DeathDelegate DeathEvent;
 
         private void OnEnable()
         {
@@ -28,18 +32,17 @@ namespace Characters
         private void HealthChange(float currentHealth)
         {
             if (currentHealth <= 0f && !Dead)
-            {
-                StopCoroutine(DeathRoutine());
-                StartCoroutine(DeathRoutine());
-            }
+                LoseLife(1);
         }
 
-        private IEnumerator DeathRoutine()
+        private void LoseLife(byte numberOfLivesLost)
         {
-            m_NumberOfLives--;
-            Dead = true;
+            if (m_NumberOfLives <= 0)
+                return;
 
-            yield return null;
+            m_NumberOfLives -= numberOfLivesLost;
+
+            DeathEvent?.Invoke(m_NumberOfLives);
         }
     }
 }

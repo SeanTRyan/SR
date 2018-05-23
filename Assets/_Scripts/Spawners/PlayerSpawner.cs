@@ -1,5 +1,7 @@
 ﻿using Characters;
 using Managers;
+using Survival;
+using Survival.UI;
 using UnityEngine;
 
 namespace Spawners
@@ -7,6 +9,9 @@ namespace Spawners
     public class PlayerSpawner : Spawner
     {
         [SerializeField] protected Transform[] m_ObjectParents = null;
+        [SerializeField] private HealthUI[] m_HealthUI = null;
+        [SerializeField] private ShieldUI[] m_ShieldUI = null;
+        [SerializeField] private LifeTokenUI[] m_LifeToken = null;
 
         public override void Initialise()
         {
@@ -29,11 +34,35 @@ namespace Spawners
                 else
                     m_ObjectsToSpawn[i] = Instantiate(m_ObjectsToSpawn[i]) as GameObject;
 
-                Initialise(m_ObjectsToSpawn[i].GetComponent<CharacterManager>(), i);
+                InitialiseControl(m_ObjectsToSpawn[i].GetComponent<CharacterManager>(), i);
+                InitialiseHealth(m_ObjectsToSpawn[i], i);
+                InitialiseShield(m_ObjectsToSpawn[i], i);
+                //InitialiseLifeTokens(m_ObjectsToSpawn[i], i);
             }
         }
 
-        private void Initialise(CharacterManager controller, int number)
+        private void InitialiseHealth(GameObject gameObject, int index)
+        {
+            IHealth healthRef = gameObject.GetComponent<IHealth>();
+            if (healthRef != null)
+                m_HealthUI[index].Initialise(healthRef);
+        }
+
+        private void InitialiseLifeTokens(GameObject gameObject, int index)
+        {
+            Death deathRef = gameObject.GetComponent<Death>();
+            if (deathRef != null)
+                m_LifeToken[index].Initialise(deathRef);
+        }
+
+        private void InitialiseShield(GameObject gameObject, int index)
+        {
+            Shield shieldRef = gameObject.GetComponent<Shield>();
+            if (shieldRef != null)
+                m_ShieldUI[index].Initialise(shieldRef);
+        }
+
+        private void InitialiseControl(CharacterManager controller, int number)
         {
             if (!controller)
                 return;

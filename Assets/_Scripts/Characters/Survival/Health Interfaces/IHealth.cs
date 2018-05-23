@@ -10,7 +10,7 @@ namespace Survival
         event Action<float> HealthChange;
 
         void RestoreHealth(float restoreAmount);
-        float CurrentHealth { get; }
-        float MaxHealth { get; }
+        float CurrentShield { get; }
+        float MaxShield { get; }
     }
 }

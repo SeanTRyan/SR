@@ -49,6 +49,9 @@ namespace Survival
 
         public void TakeDamage(float damage)
         {
+            if (!Shielding)
+                return;
+
             if (CurrentShield <= 0f)
             {
                 CurrentShield = 0f;

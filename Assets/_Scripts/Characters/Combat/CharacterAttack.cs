@@ -13,6 +13,7 @@ namespace Characters
         [Header("Attack Values")]
         //Array of all of the attacks that a character can perform
         [SerializeField] private AttackMove m_AttackMove = null;
+        [SerializeField] private float m_AttackFreeze = 0f;
 
         private Rigidbody m_Rigidbody;
         private Animator m_AttackAnimator;
@@ -21,6 +22,7 @@ namespace Characters
 
         public float Damage { get; private set; }
         public int AttackID { get; set; }
+        public bool IsAttacking { get; private set; }
 
         private void Awake()
         {
@@ -52,7 +54,7 @@ namespace Characters
             m_AttackAnimator.speed = 0f;
             m_Rigidbody.isKinematic = true;
 
-            yield return new WaitForSeconds(2.2f);
+            yield return new WaitForSeconds(m_AttackFreeze);
 
             m_AttackAnimator.speed = m_AnimSpeed;
             m_Rigidbody.isKinematic = false;
@@ -66,8 +68,13 @@ namespace Characters
             if (AttackID != 0)
                 AttackID = 0;
 
-            if (attackAction != null)
+            if (attackAction == null)
+                IsAttacking = false;
+            else
+            {
+                IsAttacking = true;
                 Damage = attackAction.damage.damage;
+            }
 
             AnimateAttack(attackID);
         }

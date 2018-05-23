@@ -14,7 +14,17 @@ namespace Effectors
         [SerializeField] private float m_StunLength = 0f;
         [SerializeField] private float m_FreezeLength = 0f;
 
+        private Animator m_Animator;
+        private Rigidbody m_Rigidbody;
+        private float m_PreviousSpeed = 0;
+
         public bool IsStunned { get; private set; }
+
+        private void Awake()
+        {
+            m_Animator = GetComponent<Animator>();
+            m_Rigidbody = GetComponent<Rigidbody>();
+        }
 
         private void OnEnable()
         {
@@ -36,11 +46,13 @@ namespace Effectors
 
         private IEnumerator StartFreeze()
         {
-            //Maybe add a message alert here to indicate that character is stunned
-            IsStunned = true;
-            yield return new WaitForSeconds(m_StunLength);
-            IsStunned = false;
-            //Play another message to indicate that the character is not longer stunned
+            if (m_Animator.speed != 0)
+                m_PreviousSpeed = m_Animator.speed;
+            m_Animator.speed = 0f;
+            m_Rigidbody.isKinematic = true;
+            yield return new WaitForSeconds(m_FreezeLength);
+            m_Animator.speed = m_PreviousSpeed;
+            m_Rigidbody.isKinematic = false;
         }
 
         private void ShieldStun(float currentShield)
@@ -60,11 +72,13 @@ namespace Effectors
 
         private IEnumerator StunRoutine(float stunLength)
         {
+            //Maybe add a message alert here to indicate that character is stunned
             IsStunned = true;
             Broadcast.Send<IBroadcast>(gameObject, (x, y) => x.Inform(Broadcasts.BroadcastMessage.Stunned));
             yield return new WaitForSeconds(stunLength);
             Broadcast.Send<IBroadcast>(gameObject, (x, y) => x.Inform(Broadcasts.BroadcastMessage.None));
             IsStunned = false;
+            //Play another message to indicate that the character is not longer stunned
         }
 
         public void Inform(BroadcastMessage message) { }

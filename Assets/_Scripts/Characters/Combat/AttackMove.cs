@@ -9,27 +9,23 @@ namespace Combat
     [Serializable]
     public class AttackMove
     {
-        #region Attack Variables
         [SerializeField] private AttackAction[] attackActions = null;
-        #endregion
 
-        #region Load
         public void Initialise()
         {
             for (int i = 0; i < attackActions.Length; i++)
                 attackActions[i].Load();
         }
-        #endregion
 
-        #region Updates
         public AttackAction GetAttack(int attackID)
         {
             for (int i = 0; i < attackActions.Length; i++)
             {
                 attackActions[i].UpdateAttack(attackID);
+                if (attackActions[i].IsAttacking)
+                    return attackActions[i];
             }
             return null;
         }
-        #endregion
     }
 }

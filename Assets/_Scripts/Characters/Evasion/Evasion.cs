@@ -32,25 +32,27 @@ namespace Characters
         public void Execute(Vector2 direction, bool shield)
         {
             //Spot Dodge
-            if ((direction.y <= -0.5f && shield) && !Dodging)
+            if ((direction.y <= -0.5f && shield) && !m_Dodging)
             {
                 StopCoroutine(SpotDodge());
                 StartCoroutine(SpotDodge());
             }
             //Roll
-            else if ((direction.x > 0.2f || direction.x < -0.2f) && shield && !Rolling)
+            else if ((direction.x > 0.2f || direction.x < -0.2f) && shield && !m_Rolling)
             {
+                Debug.Log("in roll");
                 StopCoroutine(Roll(direction));
                 StartCoroutine(Roll(direction));
             }
-
-            int evasionIndex = (Rolling) ? 2 : (Dodging) ? 1 : 0;
-
-            AnimateEvasion(evasionIndex);
         }
 
         private IEnumerator Roll(Vector2 direction)
         {
+            AnimateEvasion(2);
+            m_Rigidbody.AddForce(direction * m_RollSpeed, ForceMode.VelocityChange);
+            yield return new WaitForEndOfFrame();
+            AnimateEvasion(0);
+
             Evade(true, m_RollLength, ref m_Rolling);
             yield return new WaitForSeconds(m_RollLength);
             Evade(false, m_RollLength, ref m_Rolling);
@@ -58,6 +60,10 @@ namespace Characters
 
         private IEnumerator SpotDodge()
         {
+            AnimateEvasion(1);
+            yield return new WaitForEndOfFrame();
+            AnimateEvasion(0);
+
             Evade(true, m_SpotDodgeLength, ref m_Dodging);
             yield return new WaitForSeconds(m_SpotDodgeLength);
             Evade(false, m_SpotDodgeLength, ref m_Dodging);

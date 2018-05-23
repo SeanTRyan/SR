@@ -71,7 +71,8 @@ namespace Characters
 
         private void Update()
         {
-            if (m_Message == Broadcasts.BroadcastMessage.Stunned)
+            if (m_Message == Broadcasts.BroadcastMessage.Stunned ||
+                m_Message == Broadcasts.BroadcastMessage.Dead)
                 return;
 
             if (Stop || m_Device == null)
@@ -96,12 +97,14 @@ namespace Characters
 
         private void FixedUpdate()
         {
-            if (m_Message == Broadcasts.BroadcastMessage.Stunned)
-                return;
-
             ExecuteGravity();
 
-            ExecuteMove();
+            if (m_Message == Broadcasts.BroadcastMessage.Stunned ||
+                m_Message == Broadcasts.BroadcastMessage.Dead)
+                return;
+
+            if (!m_Evasion.Rolling && !m_Evasion.Dodging && !m_Attack.IsAttacking)
+                ExecuteMove();
 
             ExecuteEvade();
         }

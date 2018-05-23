@@ -8,53 +8,48 @@ namespace Combat
     [Serializable]
     public class AttackAction
     {
-        #region AttackAction Variables
         [SerializeField] private string tagID = "Jab One";
         [SerializeField] private Act attackAct = new Act();
         public Damage damage = null;
         [SerializeField] private Hitbox hitbox = null;
 
-        private bool attacking;
+        private bool isAttacking = false;
 
+        public bool IsAttacking { get { return isAttacking; } }
         public int AttackID { get; private set; }
-        #endregion
 
-        #region Load
         public void Load()
         {
             AttackID = Animator.StringToHash(tagID);
         }
-        #endregion
 
-        #region Updates
         public void UpdateAttack(int attackID)
         {
             if (AttackID == attackID)
-                attacking = true;
+                isAttacking = true;
 
             if(hitbox.Hit)
             {
                 attackAct.Reset();
                 hitbox.Enabled(false);
-                attacking = false;
+                isAttacking = false;
                 return;
             }
 
-            if (!attacking)
+            if (!isAttacking)
                 return;
 
-            if (attacking)
+            if (isAttacking)
                 EnableHitbox();
         }
 
         private void EnableHitbox()
         {
-            attackAct.Perform(ref attacking);
+            attackAct.Perform(ref isAttacking);
 
             hitbox.damage = damage.damage;
 
-            hitbox.Enabled(attacking);
+            hitbox.Enabled(isAttacking);
         }
-        #endregion
     }
 }

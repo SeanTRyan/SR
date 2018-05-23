@@ -34,7 +34,8 @@ namespace Controls
             "Controller (Xbox 360 For Windows)",
             "Controller (Xbox 360 Wireless Receiver for Windows)",
             "XBOX 360 For Windows (Controller)",
-            "Controller (XEOX Gamepad)"
+            "Controller (XEOX Gamepad)",
+            "Afterglow Gamepad for Xbox 360 (Controller)"
         };
 
         private static string[] XboxOne = new string[]

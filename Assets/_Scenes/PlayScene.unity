@@ -948,7 +948,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e63387a1c2c7fc478ada89a23651e52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 20.48
+  damage: 100
 --- !u!1 &708627608
 GameObject:
   m_ObjectHideFlags: 0
@@ -2147,7 +2147,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ObjectsToSpawn:
   - {fileID: 1135294019476302, guid: e410bbb8414beb94480ab8c7e442854b, type: 2}
-  - {fileID: 1135294019476302, guid: e410bbb8414beb94480ab8c7e442854b, type: 2}
   m_LoadInWorldSpace: 0
   m_ManualSpawn: 1
   m_ObjectParents:
@@ -2157,9 +2156,7 @@ MonoBehaviour:
   - {fileID: 218627276}
   m_HealthUI:
   - {fileID: 156927792}
-  - {fileID: 156927792}
   m_ShieldUI:
-  - {fileID: 1553138653}
   - {fileID: 1553138653}
   m_LifeToken: []
 --- !u!1 &1553138649
@@ -2608,6 +2605,14 @@ Prefab:
     - target: {fileID: 1135294019476302, guid: e410bbb8414beb94480ab8c7e442854b, type: 2}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e410bbb8414beb94480ab8c7e442854b, type: 2}

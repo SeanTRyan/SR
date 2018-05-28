@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using UnityEngine;
 
 namespace Controls
 {
@@ -74,7 +75,9 @@ namespace Controls
         {
             #region Xml Search
             //Uses Linq to search through the xml doc to find the correct control to map to
-            XDocument doc = XDocument.Load("Assets/Profiles/Profiles.xml");
+            string xmlPath = System.IO.Path.Combine(Application.streamingAssetsPath, "Profiles.xml");
+
+            XDocument doc = XDocument.Load(xmlPath);
             var controlMapping = from profile in doc.Root.Descendants(name)
                                  select new
                                  {

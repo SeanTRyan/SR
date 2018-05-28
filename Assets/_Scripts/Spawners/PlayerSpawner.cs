@@ -1,80 +1,76 @@
-﻿using Characters;
-using Managers;
+﻿using Broadcasts;
+using Characters;
 using Survival;
-using Survival.UI;
+using System.Collections;
 using UnityEngine;
 
 namespace Spawners
 {
-    public class PlayerSpawner : Spawner
+    public class PlayerSpawner : MonoBehaviour, IBroadcast
     {
-        [SerializeField] protected Transform[] m_ObjectParents = null;
-        [SerializeField] private HealthUI[] m_HealthUI = null;
-        [SerializeField] private ShieldUI[] m_ShieldUI = null;
-        [SerializeField] private LifeTokenUI[] m_LifeToken = null;
+        [SerializeField] private Transform m_respawnPoint = null;
+        [SerializeField] private Transform m_respawnPlatform = null;
+        [SerializeField] private Vector3 m_platformTargetLocation = Vector3.zero;
+        [SerializeField] private bool m_instantiateInWorldSpace = false;
+        [SerializeField] private float m_respawnTime = 0f;
 
-        public override void Initialise()
+        private Vector3 m_platformStartLocation = Vector3.zero;
+        private Animator m_respawnAnimator = null;
+        private IHealth m_health;
+
+        private Rigidbody m_rigidbody = null;
+        public GameObject Player { get; private set; }
+
+        private void Awake()
         {
-            if (!m_ManualSpawn)
-            {
-                m_ObjectsToSpawn = new GameObject[PlayerSettings.NumberOfCharacters];
-                for (int i = 0; i < PlayerSettings.NumberOfCharacters; i++)
-                    m_ObjectsToSpawn[i] = PlayerSettings.GetCharacter(i);
-            }
-            Spawn();
+            m_platformStartLocation = m_respawnPlatform.position;
         }
 
-        private void Spawn()
+        public void Initialise(GameObject player)
         {
-            for (int i = 0; i < m_ObjectsToSpawn.Length; i++)
-            {
-                Transform parent = m_ObjectParents[i];
-                if (parent)
-                    m_ObjectsToSpawn[i] = Instantiate(m_ObjectsToSpawn[i], parent, m_LoadInWorldSpace) as GameObject;
-                else
-                    m_ObjectsToSpawn[i] = Instantiate(m_ObjectsToSpawn[i]) as GameObject;
+            Player = Instantiate(player, transform, m_instantiateInWorldSpace) as GameObject;
+            m_rigidbody = Player.GetComponent<Rigidbody>();
 
-                InitialiseControl(m_ObjectsToSpawn[i].GetComponent<CharacterManager>(), i);
-                InitialiseHealth(m_ObjectsToSpawn[i], i);
-                InitialiseShield(m_ObjectsToSpawn[i], i);
-                //InitialiseLifeTokens(m_ObjectsToSpawn[i], i);
-            }
+            m_health = Player.GetComponent<IHealth>();
+
+            Player.GetComponent<Death>().DeathEvent += PlayerDead;
+            m_respawnAnimator = Player.GetComponent<Animator>();
         }
 
-        private void InitialiseHealth(GameObject gameObject, int index)
+        private void PlayerDead(byte numberOfLivesLeft)
         {
-            IHealth healthRef = gameObject.GetComponent<IHealth>();
-            if (healthRef != null)
-                m_HealthUI[index].Initialise(healthRef);
-        }
-
-        private void InitialiseLifeTokens(GameObject gameObject, int index)
-        {
-            Death deathRef = gameObject.GetComponent<Death>();
-            if (deathRef != null)
-                m_LifeToken[index].Initialise(deathRef);
-        }
-
-        private void InitialiseShield(GameObject gameObject, int index)
-        {
-            Shield shieldRef = gameObject.GetComponent<Shield>();
-            if (shieldRef != null)
-                m_ShieldUI[index].Initialise(shieldRef);
-        }
-
-        private void InitialiseControl(CharacterManager controller, int number)
-        {
-            if (!controller)
+            if (numberOfLivesLeft <= 0)
                 return;
 
-            controller.InitialiseDevice(number);
+            StopCoroutine(RespawnRoutine());
+            StartCoroutine(RespawnRoutine());
         }
 
-        public override void Execute()
+        private IEnumerator RespawnRoutine()
         {
-            return;
+            yield return new WaitForSeconds(m_respawnTime);
+            Player.transform.position = m_respawnPoint.position;
+            m_health.RestoreHealth(m_health.MaxHealth);
+            m_respawnAnimator.SetBool("Respawn", true);
+
+            yield return new WaitForSeconds(2f);
+
+            m_rigidbody.useGravity = true;
+            m_respawnPlatform.position = m_platformTargetLocation;
+
+            yield return new WaitForSeconds(2f);
+
+            m_rigidbody.useGravity = false;
+            m_respawnPlatform.position = m_platformStartLocation;
+
+            m_respawnAnimator.SetBool("Respawn", false);
+
+            Broadcast.Send<IBroadcast>(Player, (x, y) => x.Inform(Broadcasts.BroadcastMessage.None));
+        }
+
+        public void Inform(BroadcastMessage message)
+        {
+            throw new System.NotImplementedException();
         }
     }
-
 }
-

@@ -25,12 +25,12 @@ namespace Survival
         private Animator m_ShieldAnimator;
 
         public bool Shielding { get; private set; }
-        public float CurrentShield { get; private set; }
-        public float MaxShield { get { return m_MaxShield; } }
+        public float CurrentHealth { get; private set; }
+        public float MaxHealth { get { return m_MaxShield; } }
 
         private void Awake()
         {
-            CurrentShield = m_MaxShield;
+            CurrentHealth = m_MaxShield;
 
             m_ShieldAnimator = GetComponent<Animator>();
         }
@@ -42,7 +42,7 @@ namespace Survival
             else
                 RestoreHealth(m_ShieldReplenishRate);
 
-            Shielding = (shield && CurrentShield > 0);
+            Shielding = (shield && CurrentHealth > 0);
 
             AnimateShield(Shielding);
         }
@@ -52,28 +52,28 @@ namespace Survival
             if (!Shielding)
                 return;
 
-            if (CurrentShield <= 0f)
+            if (CurrentHealth <= 0f)
             {
-                CurrentShield = 0f;
+                CurrentHealth = 0f;
                 return;
             }
 
-            CurrentShield -= damage;
+            CurrentHealth -= damage;
 
-            HealthChange?.Invoke(CurrentShield);
+            HealthChange?.Invoke(CurrentHealth);
         }
 
         public void RestoreHealth(float restoreAmount)
         {
-            if (CurrentShield >= m_MaxShield)
+            if (CurrentHealth >= m_MaxShield)
             {
-                CurrentShield = m_MaxShield;
+                CurrentHealth = m_MaxShield;
                 return;
             }
 
-            CurrentShield += restoreAmount;
+            CurrentHealth += restoreAmount;
 
-            HealthChange?.Invoke(CurrentShield);
+            HealthChange?.Invoke(CurrentHealth);
         }
 
         private void AnimateShield(bool shield)

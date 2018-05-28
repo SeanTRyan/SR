@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class AttackBehaviour : StateMachineBehaviour
 {
-    public CharacterAttack characterAttack;
+    public Attack characterAttack;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {

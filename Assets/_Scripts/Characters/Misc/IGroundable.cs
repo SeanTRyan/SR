@@ -2,6 +2,6 @@
 {
     public interface IGroundable
     {
-        bool Grounded { get; set; }
+        bool IsGrounded { get; set; }
     }
 }

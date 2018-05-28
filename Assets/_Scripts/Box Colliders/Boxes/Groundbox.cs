@@ -45,7 +45,7 @@ namespace Boxes
         private void OnGround(bool onGround)
         {
             for (int i = 0; i < groundables.Count; i++)
-                groundables[i].Grounded = onGround;
+                groundables[i].IsGrounded = onGround;
         }
         #endregion
     }

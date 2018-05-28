@@ -14,34 +14,36 @@ namespace Managers
     public class TimeManager : MonoBehaviour
     {
         [Header("Game Time")]
-        [SerializeField] private Text gameTimeText = null;
-        [SerializeField] [Range(0, 10)] private int minutes = 1;
-        [SerializeField] [Range(0f, 59f)] private float seconds = 0f;
+        [SerializeField] private Text m_gameTimeText = null;
+        [SerializeField] [Range(0, 10)] private int m_minutes = 1;
+        [SerializeField] [Range(0f, 59f)] private float m_seconds = 0f;
 
-        [SerializeField] [Range(0.1f, 1f)] private float slowTime = 0f;
+        [SerializeField] [Range(0.1f, 1f)] private float m_slowTime = 1f;
 
-        private float timeLeft = 0f;
+        private float m_timeLeft = 0f;
 
         public bool TimeEnded { get; private set; }
 
         private void Awake()
         {
-            timeLeft = ((float)minutes * 60) + seconds;
+            m_timeLeft = ((float)m_minutes * 60) + m_seconds;
         }
 
         public void Execute()
         {
-            Time.timeScale = slowTime;
+            Time.timeScale = m_slowTime;
 
-            TimeEnded = (timeLeft <= 0);
+            TimeEnded = (m_timeLeft <= 0);
 
             if (!TimeEnded)
-                timeLeft -= Time.deltaTime;
+                m_timeLeft -= Time.deltaTime;
+            else
+                m_timeLeft = 0f;
 
-            int minutes = Mathf.FloorToInt(timeLeft / 60);
-            int seconds = Mathf.FloorToInt(timeLeft - (minutes * 60));
+            m_minutes = Mathf.FloorToInt(m_timeLeft / 60);
+            m_seconds = Mathf.FloorToInt(m_timeLeft - (m_minutes * 60));
 
-            gameTimeText.text = string.Format("{0:0}:{1:00}", minutes, seconds);
+            m_gameTimeText.text = string.Format("{0:0}:{1:00}", m_minutes, m_seconds);
         }
     }
 }

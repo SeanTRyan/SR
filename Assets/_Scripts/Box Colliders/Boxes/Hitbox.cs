@@ -7,45 +7,44 @@ namespace Boxes
 {
     public class Hitbox : Box
     {
-        public float damage;
-        public bool Hit { get; set; }
+        public float Damage;
+        public bool Hit;
 
-        public delegate void ContactDelegate(bool hit, float damage);
+        public delegate void ContactDelegate(bool hit);
         private ContactDelegate Contact;
 
         private void Awake()
         {
-            foreach (CharacterAttack attack in GetComponentsInParent<CharacterAttack>())
+            foreach (Attack attack in GetComponentsInParent<Attack>())
                 if (attack != null)
                 {
-                    Contact = attack.Contact;
+                    Contact = attack.Hit_Event;
                     break;
                 }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            Hit = true;
-
-            if (!active)
+            if (!m_active)
                 return;
 
             IDamagable[] damagables = other.GetComponentsInParent<IDamagable>();
             for (int i = 0; i < damagables.Length; i++)
-                damagables[i].TakeDamage(damage);
+                damagables[i].TakeDamage(Damage);
 
-            Contact(true, damage);
+            Hit = true;
+            Contact(Hit);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            Contact(false, 0);
             Hit = false;
+            Contact(Hit);
         }
 
         public void Enabled(bool enabled)
         {
-            active = enabled;
+            m_active = enabled;
             gameObject.layer = (enabled) ? (int)Layer.Hitbox : (int)Layer.Dead;
         }
     }

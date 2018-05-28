@@ -17,7 +17,7 @@ namespace Boxes
             for (int i = 0; i < boxGameObjects.Count; i++)
             {
                 Box box = boxGameObjects[i].GetComponent<Box>();
-                RegisterBox(box.boxType, box.boxArea, boxGameObjects[i]);
+                RegisterBox(box.BoxType, box.BoxArea, boxGameObjects[i]);
             }
         }
 

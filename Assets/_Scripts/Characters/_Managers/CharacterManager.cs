@@ -1,9 +1,11 @@
-﻿using Actions;
+﻿using Boxes;
 using Broadcasts;
 using Controls;
 using Managers;
-using Movements;
 using Survival;
+using System;
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace Characters
@@ -15,36 +17,36 @@ namespace Characters
     {
         [SerializeField] private PlayerNumber m_PlayerNumber;
 
-        private BroadcastMessage m_Message;
+        private BroadcastMessage m_message;
 
         //All of the different character components 
-        private Jump m_Jump;
-        private Movement m_Movement;
-        private CharacterAttack m_Attack;
+        private Jump m_jump;
+        private Movement m_movement;
+        private Attack m_Attack;
         private Health m_Health;
-        private Shield m_Shield;
+        private Shield m_shield;
         private Evasion m_Evasion;
         private Gravity m_Gravity;
 
+        private Animator m_animator;
+
         #region Controls
         //Device for controlling the player
-        private Device m_Device = null;
+        private Device m_device = null;
 
         //Moves the character based on joystick input
-        private Vector2 m_Move;
+        private Vector2 m_move;
 
-        [Header("Jump Inputs")]
-        //Range for determining whether the character wants to fall fast
-        [SerializeField] private ActionRange m_FallRange = new ActionRange();
+        private bool m_jumpCommand;
+        private bool m_jumpHold;
 
-        //How long the jump button can be held
-        [SerializeField] private ActionHold m_JumpAction = new ActionHold();
+        private int m_hurtIndex;
 
-        private int neutralAttack = 1;
-        private int forwardAttack = 2;
-        private int backAttack = 3;
-        private int downAttack = 4;
-        private int upAttack = 5;
+        private int m_neutralAttack = 1;
+        private int m_forwardAttack = 2;
+        private int m_backAttack = 3;
+        private int m_downAttack = 4;
+        private int m_upAttack = 5;
         #endregion
 
         //Stops all updates that belong to this object
@@ -52,13 +54,44 @@ namespace Characters
 
         private void Awake()
         {
-            m_Jump = GetComponent<Jump>();
-            m_Movement = GetComponent<Movement>();
-            m_Attack = GetComponent<CharacterAttack>();
+            m_jump = GetComponent<Jump>();
+            m_movement = GetComponent<Movement>();
+            m_Attack = GetComponent<Attack>();
             m_Evasion = GetComponent<Evasion>();
             m_Health = GetComponent<Health>();
-            m_Shield = GetComponent<Shield>();
+            m_shield = GetComponent<Shield>();
             m_Gravity = GetComponent<Gravity>();
+
+            m_animator = GetComponent<Animator>();
+        }
+
+        private void Start()
+        {
+            BoxArea[] boxTypes = Enum.GetValues(typeof(BoxArea)).Cast<BoxArea>().ToArray();
+            for (int i = 0; i < boxTypes.Length; i++)
+            {
+                Hurtbox hurtbox = GetComponent<BoxManager>().GetBox(BoxType.Hurtbox, boxTypes[i]) as Hurtbox;
+
+                if (hurtbox)
+                    hurtbox.HurtEvent += Update_HurtIndex;
+            }
+        }
+
+        private void OnDisable()
+        {
+            BoxArea[] boxTypes = Enum.GetValues(typeof(BoxArea)).Cast<BoxArea>().ToArray();
+            for (int i = 0; i < boxTypes.Length; i++)
+            {
+                Hurtbox hurtbox = GetComponent<BoxManager>().GetBox(BoxType.Hurtbox, boxTypes[i]) as Hurtbox;
+
+                if (hurtbox)
+                    hurtbox.HurtEvent -= Update_HurtIndex;
+            }
+        }
+
+        public void Update_HurtIndex(int hurtIndex)
+        {
+            m_hurtIndex = hurtIndex;
         }
 
         public void InitialiseDevice(int playerNumber)
@@ -66,16 +99,26 @@ namespace Characters
             if (playerNumber >= Input.GetJoystickNames().Length)
                 return;
 
-            m_Device = InputManager.GetDevice(playerNumber);
+            m_device = InputManager.GetDevice(playerNumber);
         }
 
         private void Update()
         {
-            if (m_Message == Broadcasts.BroadcastMessage.Stunned ||
-                m_Message == Broadcasts.BroadcastMessage.Dead)
-                return;
+            AnimateJump();
+            AnimateMove();
+            AnimateHit();
+            AnimateStun();
 
-            if (Stop || m_Device == null)
+            if (m_message == Broadcasts.BroadcastMessage.Stunned ||
+                m_message == Broadcasts.BroadcastMessage.Dead)
+            {
+                m_move = Vector3.zero;
+                m_movement.ResetMove();
+                m_jump.ResetJump();
+                return;
+            }
+
+            if (Stop || m_device == null)
                 return;
 
             ExecuteDevice();
@@ -89,21 +132,23 @@ namespace Characters
 
         private void ExecuteDevice()
         {
-            float horizontal = m_Device.LeftHorizontal.Value;
-            float vertical = m_Device.LeftVertical.Value;
+            float horizontal = m_device.LeftHorizontal.Value;
+            float vertical = m_device.LeftVertical.Value;
 
-            m_Move = new Vector2(horizontal, vertical);
+            m_move = new Vector2(horizontal, vertical);
+            m_jumpCommand = m_device.L1.Press;
+            m_jumpHold = m_device.L1.Hold;
         }
 
         private void FixedUpdate()
         {
-            ExecuteGravity();
-
-            if (m_Message == Broadcasts.BroadcastMessage.Stunned ||
-                m_Message == Broadcasts.BroadcastMessage.Dead)
+            if (m_message == Broadcasts.BroadcastMessage.Stunned ||
+                m_message == Broadcasts.BroadcastMessage.Dead)
                 return;
 
-            if (!m_Evasion.Rolling && !m_Evasion.Dodging && !m_Attack.IsAttacking)
+            ExecuteGravity();
+
+            if (!m_Evasion.IsRolling && !m_Evasion.IsDodging && !m_Attack.IsAttacking)
                 ExecuteMove();
 
             ExecuteEvade();
@@ -111,23 +156,20 @@ namespace Characters
 
         private void ExecuteJump()
         {
-            if (!m_Jump)
+            if (!m_jump)
                 return;
 
-            bool jump = m_Device.L1.Press;
-            bool jumpHold = m_Device.L1.Hold;
+            m_jump.Execute(m_move, m_jumpCommand, m_jumpHold);
 
-            m_Jump.Execute(m_Move, jump, jumpHold);
-
-            m_Jump.Fall(transform.position.y);
+            m_jump.Fall(transform.position.y);
         }
 
         private void ExecuteMove()
         {
-            if (m_Movement == null)
+            if (m_movement == null)
                 return;
 
-            m_Movement.Move(m_Move);
+            m_movement.Move(m_move);
         }
 
         private void ExecuteAttack()
@@ -145,29 +187,29 @@ namespace Characters
         {
             float forward = transform.forward.x;
 
-            attackID = (m_Device.Action1.Press) ? neutralAttack : attackID;
-            attackID = (m_Device.Action1.Press && m_Device.LeftHorizontal.Value * forward > 0.1f) ? forwardAttack : attackID;
-            attackID = (m_Device.Action1.Press && m_Device.LeftHorizontal.Value * forward < -0.1f) ? backAttack : attackID;
-            attackID = (m_Device.Action1.Press && m_Device.LeftVertical.Value < -0.1) ? downAttack : attackID;
-            attackID = (m_Device.Action1.Press && m_Device.LeftVertical.Value > 0.1) ? upAttack : attackID;
+            attackID = (m_device.Action1.Press) ? m_neutralAttack : attackID;
+            attackID = (m_device.Action1.Press && m_device.LeftHorizontal.Value * forward > 0.1f) ? m_forwardAttack : attackID;
+            attackID = (m_device.Action1.Press && m_device.LeftHorizontal.Value * forward < -0.1f) ? m_backAttack : attackID;
+            attackID = (m_device.Action1.Press && m_device.LeftVertical.Value < -0.1) ? m_downAttack : attackID;
+            attackID = (m_device.Action1.Press && m_device.LeftVertical.Value > 0.1) ? m_upAttack : attackID;
         }
 
         private void ExecuteEvade()
         {
-            if (!m_Evasion || !m_Shield)
+            if (!m_Evasion || !m_shield)
                 return;
 
-            m_Evasion.Execute(m_Move, m_Shield.Shielding);
+            m_Evasion.Execute(m_move, m_shield.Shielding);
         }
 
         private void ExecuteShield()
         {
-            if (!m_Shield)
+            if (!m_shield)
                 return;
 
-            bool shield = m_Device.R1.Hold;
+            bool shield = m_device.R1.Hold;
 
-            m_Shield.Execute(m_Device.R1.Hold);
+            m_shield.Execute(m_device.R1.Hold);
         }
 
         private void ExecuteGravity()
@@ -178,9 +220,46 @@ namespace Characters
             m_Gravity.Execute();
         }
 
+        #region Animation and Visual FX
+        private void AnimateMove()
+        {
+            float speed = Mathf.Abs(m_move.x);
+            float crouchSpeed = m_move.x * transform.forward.x;
+            float crouchFactor = m_move.y;
+
+            m_animator.SetFloat("Speed", speed);
+            m_animator.SetFloat("Crouch Speed", crouchSpeed);
+            m_animator.SetFloat("Crouch Factor", m_move.y);
+            m_animator.SetBool("Crouching", m_movement.IsCrouching);
+            m_animator.SetBool("Dashing", m_movement.IsDashing);
+
+        }
+
+        private void AnimateJump()
+        {
+            m_animator.SetBool("Jump", m_jumpCommand);
+            m_animator.SetBool("Falling", m_jump.IsFalling);
+            m_animator.SetBool("Grounded", m_jump.IsGrounded);
+            m_animator.SetInteger("Jump Count", m_jump.JumpsRemaining);
+        }
+
+        private void AnimateHit()
+        {
+            m_animator.SetInteger("HitIndex", m_hurtIndex);
+
+            m_hurtIndex = 0;
+        }
+
+        private void AnimateStun()
+        {
+            bool stunned = (m_message == Broadcasts.BroadcastMessage.Stunned);
+            m_animator.SetBool("Stunned", stunned);
+        }
+        #endregion
+
         public void Inform(BroadcastMessage message)
         {
-            m_Message = message;
+            m_message = message;
         }
     }
 }

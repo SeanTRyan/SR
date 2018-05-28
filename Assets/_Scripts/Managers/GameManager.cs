@@ -1,4 +1,5 @@
-﻿using Spawners;
+﻿using Player.Management;
+using Spawners;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,16 +11,16 @@ namespace Managers
         [SerializeField] private Image m_FadeOutImage = null;
         [SerializeField] private float m_FadeOutTime = 0.3f;
 
-        private Spawner[] m_Spawners = null;
+        private PlayerManager[] m_playerManager = null;
         private TimeManager m_TimeManager = null;
 
         private void Awake()
         {
             m_TimeManager = GetComponent<TimeManager>();
-            m_Spawners = GetComponents<Spawner>();
+            m_playerManager = GetComponents<PlayerManager>();
 
-            for (int i = 0; i < m_Spawners.Length; i++)
-                m_Spawners[i].Initialise();
+            for (int i = 0; i < m_playerManager.Length; i++)
+                m_playerManager[i].Initialise();
 
             m_FadeOutImage.CrossFadeAlpha(1f, 0f, true);
         }
@@ -32,8 +33,8 @@ namespace Managers
 
         private void Update()
         {
-            for (int i = 0; i < m_Spawners.Length; i++)
-                m_Spawners[i].Execute();
+            for (int i = 0; i < m_playerManager.Length; i++)
+                m_playerManager[i].Execute();
 
             UpdateTime();
         }

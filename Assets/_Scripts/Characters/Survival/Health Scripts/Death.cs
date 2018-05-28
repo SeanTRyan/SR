@@ -38,7 +38,11 @@ namespace Characters
         private void HealthChange(float currentHealth)
         {
             if (currentHealth <= 0f && !Dead)
+            {
+                StopCoroutine(PlayDeath());
+                StartCoroutine(PlayDeath());
                 LoseLife(1);
+            }
         }
 
         private void LoseLife(byte numberOfLivesLost)
@@ -54,14 +58,13 @@ namespace Characters
 
             DeathEvent?.Invoke(m_NumberOfLives);
 
-            StopCoroutine(PlayDeath());
-            StartCoroutine(PlayDeath());
         }
 
         private IEnumerator PlayDeath()
         {
             m_DeathAnimator.SetBool("Dead", true);
 
+            yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
 
             m_DeathAnimator.SetBool("Dead", false);

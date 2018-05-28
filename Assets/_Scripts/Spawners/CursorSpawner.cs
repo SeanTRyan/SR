@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UI;
+﻿using UI;
 using UnityEngine;
 
 namespace Spawners
@@ -12,7 +7,7 @@ namespace Spawners
     {
         [SerializeField] private Transform[] m_CursorParents = null;
 
-        public override void Initialise()
+        public void Awake()
         {
             if (!m_ManualSpawn)
             {
@@ -23,7 +18,7 @@ namespace Spawners
                 return;
             }
 
-            int numberOfObjects = m_ObjectsToSpawn.Length;
+            int numberOfObjects = m_objectsToSpawn.Length;
 
             Spawn(numberOfObjects);
         }
@@ -32,7 +27,7 @@ namespace Spawners
         {
             for (int i = 0; i < length; i++)
             {
-                GameObject cursor = Instantiate(m_ObjectsToSpawn[i], m_CursorParents[i], m_LoadInWorldSpace) as GameObject;
+                GameObject cursor = Instantiate(m_objectsToSpawn[i], m_CursorParents[i], m_LoadInWorldSpace) as GameObject;
 
                 if (!cursor.GetComponent<CursorUI>())
                     return;
@@ -46,5 +41,9 @@ namespace Spawners
             return;
         }
 
+        public override void Initialise()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

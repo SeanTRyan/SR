@@ -3,28 +3,36 @@ using UnityEngine.UI;
 
 namespace Survival.UI
 {
+    /// <summary>
+    /// Class that handles the visuals of shielding
+    /// </summary>
     public class ShieldUI : MonoBehaviour
     {
-        [SerializeField] private Image m_ShieldImage;
-        [SerializeField] private Text m_ShieldText;
+        [SerializeField] private Image m_shieldImage = null;
 
-        private Shield m_Shield = null;
+        private Shield m_shield = null;
 
         public void Initialise(Shield shieldRef)
         {
-            m_Shield = shieldRef;
+            m_shield = shieldRef;
 
-            m_Shield.HealthChange += ShieldEffect;
+            m_shield.HealthChange += ShieldEffect;
         }
 
         private void OnDisable()
         {
-            m_Shield.HealthChange -= ShieldEffect;
+            if(m_shield)
+                m_shield.HealthChange -= ShieldEffect;
         }
 
         private void ShieldEffect(float currentShield)
         {
-            m_ShieldText.text = "x" + currentShield.ToString("00");
+            m_shieldImage.fillAmount = currentShield / m_shield.MaxHealth;
+        }
+
+        public void SetActive(bool isActive)
+        {
+            gameObject.SetActive(isActive);
         }
     }
 }

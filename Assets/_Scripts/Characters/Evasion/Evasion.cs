@@ -4,72 +4,76 @@ using UnityEngine;
 
 namespace Characters
 {
+    /// <summary>
+    /// Class that is responsible for handling evasion.
+    /// </summary>
     public class Evasion : MonoBehaviour
     {
-        [SerializeField] private float m_RollSpeed;
-        [SerializeField] private float m_RollLength;
+        [SerializeField] private float m_rollSpeed = 10f;
 
-        [SerializeField] private float m_SpotDodgeLength;
+        //How long a roll lasts.
+        [SerializeField] private float m_rollEnableLength = 0.2f;
 
-        private Rigidbody m_Rigidbody;
-        private Animator m_EvasionAnimator;
+        //How long a dodge lasts.
+        [SerializeField] private float m_dodgeEnableLength = 0.2f;
 
+        private Rigidbody m_rigidbody;
+        private Animator m_evasionAnimator;
+
+        //An event that notifies subscribers when character is evading.
         public Action<bool, float> EvasionEvent;
 
-        private bool m_Rolling = false;
-        private bool m_Dodging = false;
+        private bool m_isRolling = false;
+        private bool m_isDodging = false;
 
-        public bool Rolling { get { return m_Rolling; } }
-        public bool Dodging { get { return m_Dodging; } }
+        public bool IsRolling { get { return m_isRolling; } }
+        public bool IsDodging { get { return m_isDodging; } }
 
         // Use this for initialization
         private void Awake()
         {
-            m_Rigidbody = GetComponent<Rigidbody>();
-            m_EvasionAnimator = GetComponent<Animator>();
+            m_rigidbody = GetComponent<Rigidbody>();
+            m_evasionAnimator = GetComponent<Animator>();
         }
 
         public void Execute(Vector2 direction, bool shield)
         {
-            //Spot Dodge
-            if ((direction.y <= -0.5f && shield) && !m_Dodging)
+            if ((direction.y <= -0.5f && shield) && !m_isDodging)
             {
-                StopCoroutine(SpotDodge());
-                StartCoroutine(SpotDodge());
+                StopCoroutine(DodgeRoutine());
+                StartCoroutine(DodgeRoutine());
             }
-            //Roll
-            else if ((direction.x > 0.2f || direction.x < -0.2f) && shield && !m_Rolling)
+            else if ((direction.x > 0.2f || direction.x < -0.2f) && shield && !m_isRolling)
             {
-                Debug.Log("in roll");
-                StopCoroutine(Roll(direction));
-                StartCoroutine(Roll(direction));
+                StopCoroutine(RollRoutine(direction));
+                StartCoroutine(RollRoutine(direction));
             }
         }
 
-        private IEnumerator Roll(Vector2 direction)
+        private IEnumerator RollRoutine(Vector2 direction)
         {
             AnimateEvasion(2);
-            m_Rigidbody.AddForce(direction * m_RollSpeed, ForceMode.VelocityChange);
+            m_rigidbody.AddForce(direction * m_rollSpeed, ForceMode.VelocityChange);
             yield return new WaitForEndOfFrame();
             AnimateEvasion(0);
 
-            Evade(true, m_RollLength, ref m_Rolling);
-            yield return new WaitForSeconds(m_RollLength);
-            Evade(false, m_RollLength, ref m_Rolling);
+            Evade_Event(true, m_rollEnableLength, ref m_isRolling);
+            yield return new WaitForSeconds(m_rollEnableLength);
+            Evade_Event(false, m_rollEnableLength, ref m_isRolling);
         }
 
-        private IEnumerator SpotDodge()
+        private IEnumerator DodgeRoutine()
         {
             AnimateEvasion(1);
             yield return new WaitForEndOfFrame();
             AnimateEvasion(0);
 
-            Evade(true, m_SpotDodgeLength, ref m_Dodging);
-            yield return new WaitForSeconds(m_SpotDodgeLength);
-            Evade(false, m_SpotDodgeLength, ref m_Dodging);
+            Evade_Event(true, m_dodgeEnableLength, ref m_isDodging);
+            yield return new WaitForSeconds(m_dodgeEnableLength);
+            Evade_Event(false, m_dodgeEnableLength, ref m_isDodging);
         }
 
-        private void Evade(bool evasion, float length, ref bool evadeType)
+        private void Evade_Event(bool evasion, float length, ref bool evadeType)
         {
             if (evadeType == evasion)
                 return;
@@ -81,7 +85,7 @@ namespace Characters
 
         private void AnimateEvasion(int evasionIndex)
         {
-            m_EvasionAnimator.SetInteger("EvasionIndex", evasionIndex);
+            m_evasionAnimator.SetInteger("EvasionIndex", evasionIndex);
             evasionIndex = 0;
         }
     }

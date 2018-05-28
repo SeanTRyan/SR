@@ -7,27 +7,26 @@ namespace Survival.UI
 {
     public class LifeTokenUI : MonoBehaviour
     {
-        [SerializeField] private Text m_LivesRemainingText;
-        [SerializeField] private Text m_LifeLostText;
+        [SerializeField] private Text m_numberOfLivesText;
+        [SerializeField] private Text m_lifeLostText;
 
-        [SerializeField] private Vector3 m_TargetPosition;
-        [SerializeField] private float m_Speed;
+        [SerializeField] private Vector3 m_targetPosition;
+        [SerializeField] private float m_smoothDamp;
 
-        private Vector3 m_TextVelocity;
+        private Vector3 m_textVelocity;
 
         public void Initialise(Death deathRef)
         {
-            m_LifeLostText.gameObject.SetActive(false);
+            m_lifeLostText.gameObject.SetActive(false);
 
-            m_LifeLostText.transform.position = m_LivesRemainingText.transform.position;
-            m_LivesRemainingText.text = deathRef.NumberOfLives.ToString();
+            m_numberOfLivesText.text = deathRef.NumberOfLives.ToString();
 
             deathRef.DeathEvent += LostLifeToken;
         }
 
         private void LostLifeToken(byte livesRemaining)
         {
-            m_LivesRemainingText.text = livesRemaining.ToString();
+            m_numberOfLivesText.text = livesRemaining.ToString();
 
             StopCoroutine(LostTokenRoutine(livesRemaining));
             StartCoroutine(LostTokenRoutine(livesRemaining));
@@ -35,22 +34,29 @@ namespace Survival.UI
 
         private IEnumerator LostTokenRoutine(byte numberOfLives)
         {
-            m_LifeLostText.gameObject.SetActive(true);
+            m_lifeLostText.gameObject.SetActive(true);
 
-            Vector3 startPosition = m_LivesRemainingText.transform.position;
-            Vector3 endPosition = startPosition - m_TargetPosition;
+            Vector3 startPosition = m_lifeLostText.transform.position;
+            Vector3 originalPosition = startPosition;
+            Vector3 endPosition = startPosition - m_targetPosition;
 
-            m_LifeLostText.transform.position = startPosition;
+            m_lifeLostText.transform.position = startPosition;
             while (startPosition != endPosition)
             {
-                startPosition = Vector3.SmoothDamp(startPosition, endPosition, ref m_TextVelocity, m_Speed);
+                startPosition = Vector3.SmoothDamp(startPosition, endPosition, ref m_textVelocity, m_smoothDamp);
 
-                m_LifeLostText.transform.position = startPosition;
+                m_lifeLostText.transform.position = startPosition;
 
                 yield return null;
             }
 
-            m_LifeLostText.gameObject.SetActive(false);
+            m_lifeLostText.transform.position = originalPosition;
+            m_lifeLostText.gameObject.SetActive(false);
+        }
+
+        public void SetActive(bool isActive)
+        {
+            gameObject.SetActive(isActive);
         }
     }
 }

@@ -10,47 +10,58 @@ namespace Survival.UI
     public class HealthUI : MonoBehaviour
     {
         //Visuals for displaying the health bar.
-        [SerializeField] private Image m_HealthForeground;
-        [SerializeField] private Image m_HealthSecondary;
-        [SerializeField] private Image m_HealthBackground;
+        [SerializeField] private Image m_healthForeground;
+        [SerializeField] private Image m_healthSecondary;
+        [SerializeField] private Image m_healthBackground;
+        [SerializeField] private Text m_healthText;
 
         //Smoothing for the health decrease
-        [SerializeField] protected float m_SmoothDamp = 0.3f;
+        [SerializeField] protected float m_smoothDamp = 0.3f;
 
-        private float m_HealthVelocity = 0f;
+        private float m_healthVelocity = 0f;
 
-        private float m_MaxHealth;
-        private float m_TargetHealth;
-        private float m_PreviousHealth;
+        private float m_maxHealth;
+        private float m_targetHealth;
+        private float m_previousHealth;
 
         //Initialises the health and subscribes it to a character's health
         public void Initialise(IHealth healthRef)
         {
-            m_MaxHealth = healthRef.MaxShield;
-            m_PreviousHealth = m_TargetHealth = (m_MaxHealth / m_MaxHealth);
+            m_maxHealth = healthRef.MaxHealth;
+            m_previousHealth = m_targetHealth = (m_maxHealth / m_maxHealth);
 
-            m_HealthSecondary.fillAmount = m_HealthForeground.fillAmount = m_PreviousHealth;
+            m_healthSecondary.fillAmount = m_healthForeground.fillAmount = m_previousHealth;
+            m_healthText.text = (healthRef.CurrentHealth + "/" + healthRef.MaxHealth);
 
             healthRef.HealthChange += (d) =>
             {
-                m_TargetHealth = ((d) / m_MaxHealth);
+                m_targetHealth = ((d) / m_maxHealth);
 
-                StopCoroutine(DecreaseHealth());
-                StartCoroutine(DecreaseHealth());
+                StopCoroutine(DecreaseHealth(healthRef.CurrentHealth, m_maxHealth));
+                StartCoroutine(DecreaseHealth(healthRef.CurrentHealth, m_maxHealth));
             };
         }
 
-        private IEnumerator DecreaseHealth()
+        private IEnumerator DecreaseHealth(float currentHealth, float maxHealth)
         {
-            m_HealthForeground.fillAmount = m_TargetHealth;
-            while (m_PreviousHealth != m_TargetHealth)
-            {
-                m_PreviousHealth = Mathf.SmoothDamp(m_PreviousHealth, m_TargetHealth, ref m_HealthVelocity, m_SmoothDamp);
+            if (currentHealth < 0)
+                currentHealth = 0;
 
-                m_HealthSecondary.fillAmount = m_PreviousHealth;
+            m_healthForeground.fillAmount = m_targetHealth;
+            m_healthText.text = string.Format("{0:0}/{1}", currentHealth, m_maxHealth);
+            while (m_previousHealth != m_targetHealth)
+            {
+                m_previousHealth = Mathf.SmoothDamp(m_previousHealth, m_targetHealth, ref m_healthVelocity, m_smoothDamp);
+
+                m_healthSecondary.fillAmount = m_previousHealth;
 
                 yield return null;
             }
+        }
+
+        public void SetActive(bool isActive)
+        {
+            gameObject.SetActive(isActive);
         }
     }
 }

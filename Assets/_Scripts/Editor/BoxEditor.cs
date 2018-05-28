@@ -74,7 +74,7 @@ namespace Characters.Boxes
             BoxType boxType = BoxType.None;
 
             if (gameObject.GetComponent<Box>())
-                boxType = gameObject.GetComponent<Box>().boxType;
+                boxType = gameObject.GetComponent<Box>().BoxType;
 
             if (!gameObject)
                 manager.boxGameObjects.Remove(gameObject);
@@ -91,15 +91,15 @@ namespace Characters.Boxes
                 {
                     case BoxType.Hurtbox:
                         gameObject.AddComponent<Hurtbox>();
-                        gameObject.GetComponent<Hurtbox>().boxType = BoxType.Hurtbox;
+                        gameObject.GetComponent<Hurtbox>().BoxType = BoxType.Hurtbox;
                         break;
                     case BoxType.Hitbox:
                         gameObject.AddComponent<Hitbox>();
-                        gameObject.GetComponent<Hitbox>().boxType = BoxType.Hitbox;
+                        gameObject.GetComponent<Hitbox>().BoxType = BoxType.Hitbox;
                         break;
                     case BoxType.GroundBox:
                         gameObject.AddComponent<Groundbox>();
-                        gameObject.GetComponent<Groundbox>().boxType = BoxType.GroundBox;
+                        gameObject.GetComponent<Groundbox>().BoxType = BoxType.GroundBox;
                         break;
                     default:
                         break;
@@ -111,19 +111,19 @@ namespace Characters.Boxes
                 {
                     DestroyImmediate(gameObject.GetComponent<Box>());
                     gameObject.AddComponent<Hurtbox>();
-                    gameObject.GetComponent<Hurtbox>().boxType = BoxType.Hurtbox;
+                    gameObject.GetComponent<Hurtbox>().BoxType = BoxType.Hurtbox;
                 }
                 else if (boxType == BoxType.Hitbox && !gameObject.GetComponent<Hitbox>())
                 {
                     DestroyImmediate(gameObject.GetComponent<Box>());
                     gameObject.AddComponent<Hitbox>();
-                    gameObject.GetComponent<Hitbox>().boxType = BoxType.Hitbox;
+                    gameObject.GetComponent<Hitbox>().BoxType = BoxType.Hitbox;
                 }
                 else if (boxType == BoxType.GroundBox && !gameObject.GetComponent<Groundbox>())
                 {
                     DestroyImmediate(gameObject.GetComponent<Box>());
                     gameObject.AddComponent<Groundbox>();
-                    gameObject.GetComponent<Groundbox>().boxType = BoxType.GroundBox;
+                    gameObject.GetComponent<Groundbox>().BoxType = BoxType.GroundBox;
                 }
             }
 
@@ -132,38 +132,38 @@ namespace Characters.Boxes
             Box box = gameObject.GetComponent<Box>();
 
             GUILayout.Space(5f);
-            box.colliderType = (ColliderType)EditorGUI.EnumPopup(new Rect(rect.x, rect.y + 20f, rect.width, singleLine), "Collider", box.colliderType);
-            box.boxArea = (BoxArea)EditorGUI.EnumPopup(new Rect(rect.x, rect.y + 40f, rect.width, singleLine), "Body Area", box.boxArea);
-            box.parent = (Transform)EditorGUI.ObjectField(new Rect(rect.x, rect.y + 60f, rect.width, singleLine), "Parent", box.parent, typeof(Transform), true);
+            box.ColliderType = (ColliderType)EditorGUI.EnumPopup(new Rect(rect.x, rect.y + 20f, rect.width, singleLine), "Collider", box.ColliderType);
+            box.BoxArea = (BoxArea)EditorGUI.EnumPopup(new Rect(rect.x, rect.y + 40f, rect.width, singleLine), "Body Area", box.BoxArea);
+            box.Parent = (Transform)EditorGUI.ObjectField(new Rect(rect.x, rect.y + 60f, rect.width, singleLine), "Parent", box.Parent, typeof(Transform), true);
 
             if (boxType == BoxType.Hitbox)
             {
-                box.color = Color.red;
+                box.Color = Color.red;
                 gameObject.layer = (int)Layer.Hitbox;
             }
             else if (boxType == BoxType.Hurtbox)
             {
-                box.color = Color.blue;
+                box.Color = Color.blue;
                 gameObject.layer = (int)Layer.Hurtbox;
             }
             else if (boxType == BoxType.GroundBox)
             {
-                box.color = Color.yellow;
+                box.Color = Color.yellow;
                 gameObject.layer = (int)Layer.PlayerStatic;
             }
 
-            if (box.colliderType == ColliderType.Sphere)
+            if (box.ColliderType == ColliderType.Sphere)
                 SetSphereCollider(rect, ref gameObject);
-            else if (box.colliderType == ColliderType.Box)
+            else if (box.ColliderType == ColliderType.Box)
                 SetBoxCollider(rect, ref gameObject);
 
-            if (box.parent != null)
+            if (box.Parent != null)
             {
-                box.transform.SetParent(box.parent);
-                box.transform.position = box.parent.position;
+                box.transform.SetParent(box.Parent);
+                box.transform.position = box.Parent.position;
             }
 
-            gameObject.name = boxType.ToString() + " " + box.boxArea.ToString();
+            gameObject.name = boxType.ToString() + " " + box.BoxArea.ToString();
 
             bubbleList.elementHeight = 140f;
         }

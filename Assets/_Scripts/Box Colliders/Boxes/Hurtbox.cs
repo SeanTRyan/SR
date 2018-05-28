@@ -8,49 +8,42 @@ namespace Boxes
     /// </summary>
     public class Hurtbox : Box
     {
-        private Health health = null;
-
         public delegate void HurtDelegate(int hurtIndex);
+        public event HurtDelegate HurtEvent;
 
-        private HurtDelegate m_HurtDelegate;
-
-        private int hurtIndex = 0;
+        private int m_hurtIndex = 0;
+        private int m_previousIndex = 0;
 
         private void Awake()
         {
-            foreach (Health health in GetComponentsInParent<Health>())
-                if (health)
-                {
-                    this.health = health;
-                    break;
-                }
-
-            m_HurtDelegate = health.HitArea;
-
-            if (boxArea == BoxArea.MidTorso || boxArea == BoxArea.RightThigh || boxArea == BoxArea.LeftThigh)
-                hurtIndex = 2;
-            else if (boxArea == BoxArea.LeftCalf || boxArea == BoxArea.RightCalf)
-                hurtIndex = 3;
+            if (BoxArea == BoxArea.MidTorso || BoxArea == BoxArea.RightThigh || BoxArea == BoxArea.LeftThigh)
+                m_hurtIndex = 2;
+            else if (BoxArea == BoxArea.LeftCalf || BoxArea == BoxArea.RightCalf)
+                m_hurtIndex = 3;
             else
-                hurtIndex = 1;
+                m_hurtIndex = 1;
 
-            active = true;
+            m_active = true;
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            m_HurtDelegate(hurtIndex);
+            Update_HitEvent(m_hurtIndex);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            m_HurtDelegate(0);
+            Update_HitEvent(0);
         }
 
+        private void Update_HitEvent(int hurtIndex)
+        {
+            HurtEvent?.Invoke(hurtIndex);
+        }
 
         public void Enabled(bool enabled)
         {
-            active = enabled;
+            m_active = enabled;
             gameObject.layer = (enabled) ? (int)Layer.Hurtbox : (int)Layer.Dead;
         }
     }

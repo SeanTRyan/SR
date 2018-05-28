@@ -12,40 +12,50 @@ namespace Survival
     /// </summary>
     public class Health : MonoBehaviour, IHealth, IDamagable
     {
-        [SerializeField] [Range(0f, 2000f)] protected float m_MaxHealth;
-        protected float m_CurrentHealth;
+        [SerializeField] [Range(0f, 2000f)] protected float m_maxHealth;
+        protected float m_currentHealth;
 
         //protected int m_HurtIndex;
 
-        public float MaxShield { get { return m_MaxHealth; } }
-        public float CurrentShield { get { return m_CurrentHealth; } }
+        public float MaxHealth { get { return m_maxHealth; } }
+        public float CurrentHealth { get { return m_currentHealth; } }
 
         //An Action event that informs subscribers when health has changed
         public virtual event Action<float> HealthChange;
 
+        private Shield m_shield;
+
         private void Awake()
         {
-            m_CurrentHealth = m_MaxHealth;
+            m_currentHealth = m_maxHealth;
+
+            m_shield = GetComponent<Shield>();
         }
 
         public virtual void RestoreHealth(float restoreAmount)
         {
-            m_CurrentHealth += restoreAmount;
+            m_currentHealth += restoreAmount;
 
-            m_CurrentHealth = Mathf.Clamp(m_CurrentHealth, 0f, m_MaxHealth);
+            m_currentHealth = Mathf.Clamp(m_currentHealth, 0f, m_maxHealth);
+
+            HealthChange?.Invoke(m_currentHealth);
         }
 
         public virtual void TakeDamage(float damage)
         {
-            if (m_CurrentHealth <= 0)
+            if (m_shield)
+                if (m_shield.Shielding)
+                    return;
+
+            if (m_currentHealth <= 0)
             {
-                m_CurrentHealth = 0f;
+                m_currentHealth = 0f;
                 return;
             }
 
-            m_CurrentHealth -= damage;
+            m_currentHealth -= damage;
 
-            HealthChange?.Invoke(m_CurrentHealth);
+            HealthChange?.Invoke(m_currentHealth);
         }
 
         public void HitArea(int hurtIndex)

@@ -1,4 +1,5 @@
 ﻿using Boxes;
+using Broadcasts;
 using Characters;
 using Survival;
 using System;
@@ -13,11 +14,14 @@ namespace Effectors
     /// Class that handles making the character immune.
     /// </summary>
     [RequireComponent(typeof(IHealth))]
-    public class Immunity : MonoBehaviour
+    public class Immunity : MonoBehaviour, IBroadcast
     {
-        [SerializeField] private float m_ImmunityLength;
+        [SerializeField] private float m_immunityLength;
 
-        private List<Hurtbox> m_Hurtboxes = new List<Hurtbox>();
+        private BroadcastMessage m_message;
+        private List<Hurtbox> m_hurtboxes = new List<Hurtbox>();
+
+        public bool IsImmune { get; private set; }
 
         private void Start()
         {
@@ -26,7 +30,7 @@ namespace Effectors
             {
                 Hurtbox hurtbox = GetComponent<BoxManager>().GetBox(BoxType.Hurtbox, boxAreas[i]) as Hurtbox;
                 if (hurtbox)
-                    m_Hurtboxes.Add(hurtbox);
+                    m_hurtboxes.Add(hurtbox);
             }
         }
 
@@ -42,6 +46,14 @@ namespace Effectors
             GetComponent<Evasion>().EvasionEvent -= Immune;
         }
 
+        private void Update()
+        {
+            if (m_message == Broadcasts.BroadcastMessage.Dead)
+                EnableHurtboxes(false);
+            else if(!IsImmune)
+                EnableHurtboxes(true);
+        }
+
         private void Immune(bool immune, float immunityLength)
         {
             if(immune)
@@ -53,23 +65,32 @@ namespace Effectors
 
         private void HealthChange(float currentHealth)
         {
-            StopCoroutine(MakeImmune(m_ImmunityLength));
-            StartCoroutine(MakeImmune(m_ImmunityLength));
+            StopCoroutine(MakeImmune(m_immunityLength));
+            StartCoroutine(MakeImmune(m_immunityLength));
         }
 
         private IEnumerator MakeImmune(float immunityLength)
         {
-            EnableHurtboxes(false);
+            IsImmune = true;
+            EnableHurtboxes(!IsImmune);
             gameObject.layer = (int)Layer.PlayerDynamic;
+
             yield return new WaitForSeconds(immunityLength);
+
             gameObject.layer = (int)Layer.PlayerStatic;
-            EnableHurtboxes(true);
+            IsImmune = false;
+            EnableHurtboxes(!IsImmune);
         }
 
         private void EnableHurtboxes(bool enable)
         {
-            for (int i = 0; i < m_Hurtboxes.Count; i++)
-                m_Hurtboxes[i].Enabled(enable);
+            for (int i = 0; i < m_hurtboxes.Count; i++)
+                m_hurtboxes[i].Enabled(enable);
+        }
+
+        public void Inform(BroadcastMessage message)
+        {
+            m_message = message;
         }
     }
 }

@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
+using UI;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
@@ -17,15 +20,35 @@ public class OptionsMenu : MonoBehaviour
     [SerializeField] private Dropdown m_vSyncDropdown = null;
     [SerializeField] private Dropdown m_antialiasingDropdown = null;
 
+    [SerializeField] private Button m_applyButton = null;
     [SerializeField] private Toggle m_fullscreenToggle = null;
 
     private Resolution[] m_resolutions;
 
+    private GameSettings m_gameSettings;
+
     private void Awake()
     {
+        m_gameSettings = new GameSettings();
+
         InitialiseResolutions();
 
         InitialiseListeners();
+
+        Initialise();
+    }
+
+    private void Initialise()
+    {
+        LoadSettings();
+
+        OnFullScreenToggle();
+        OnResolutionChange();
+        OnTextureQualityChange();
+        OnVSyncChange();
+        OnAntialiasingChange();
+        OnMusicSliderChange();
+        SaveSettings();
     }
 
     private void InitialiseListeners()
@@ -36,6 +59,7 @@ public class OptionsMenu : MonoBehaviour
         m_vSyncDropdown.onValueChanged.AddListener(delegate { OnVSyncChange(); });
         m_antialiasingDropdown.onValueChanged.AddListener(delegate { OnAntialiasingChange(); });
         m_musicVolumeSlider.onValueChanged.AddListener(delegate { OnMusicSliderChange(); });
+        m_applyButton.onClick.AddListener(delegate { SaveSettings(); });
     }
 
     private void InitialiseResolutions()
@@ -58,39 +82,109 @@ public class OptionsMenu : MonoBehaviour
 
     public void OnResolutionChange()
     {
-        Resolution resolution = m_resolutions[m_resolutionDropdown.value];
+        int resolutionIndex = 0;
+
+        m_gameSettings.Resolution = resolutionIndex = m_resolutionDropdown.value;
+
+        Resolution resolution = m_resolutions[resolutionIndex];
 
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
 
     public void OnTextureQualityChange()
     {
-        QualitySettings.SetQualityLevel(m_qualityDropdown.value);
+        int textureQuality = 0;
+        m_gameSettings.TextureQuality = textureQuality = m_qualityDropdown.value;
+
+        QualitySettings.SetQualityLevel(textureQuality);
     }
 
     public void OnAntialiasingChange()
     {
-        QualitySettings.antiAliasing = (int)Mathf.Pow(2f, m_antialiasingDropdown.value);
+        int antialiasing = 0;
+        m_gameSettings.Antialiasing = antialiasing = m_antialiasingDropdown.value;
+
+        QualitySettings.antiAliasing = (int)Mathf.Pow(2f, antialiasing);
     }
 
     public void OnVSyncChange()
     {
-        QualitySettings.vSyncCount = m_vSyncDropdown.value;
+        int vSync = 0;
+        m_gameSettings.vSync = vSync = m_vSyncDropdown.value;
+
+        QualitySettings.vSyncCount = vSync;
     }
 
     public void OnMusicSliderChange()
     {
-        m_musicVolumeText.text = string.Format("{0:0}", m_musicVolumeSlider.value);
+        float musicVolume = 0f;
+        m_gameSettings.MusicVolume = musicVolume = m_musicVolumeSlider.value;
+
+        m_musicVolumeText.text = string.Format("{0:0}", musicVolume);
     }
 
     public void OnFullScreenToggle()
     {
-        Screen.fullScreen = (m_fullscreenToggle.isOn);
-        Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+        bool fullScreen = false;
+        m_gameSettings.FullScreen = fullScreen = m_fullscreenToggle.isOn;
 
-        Screen.SetResolution(Screen.width, Screen.height, m_fullscreenToggle.isOn);
+        Screen.SetResolution(Screen.width, Screen.height, fullScreen);
+    }
 
-        Debug.Log("SCREEN MODE " + Screen.fullScreenMode);
-        Debug.Log("FULL SCREEN " + Screen.fullScreen);
+    //public void SaveSettings()
+    //{
+    //    string xmlPath = System.IO.Path.Combine(Application.streamingAssetsPath, "MenuSettings.xml");
+
+    //    XmlDocument xmlDoc = new XmlDocument();
+
+    //    xmlDoc.Load(xmlPath);
+
+    //    XmlElement resolutionNode = xmlDoc.SelectSingleNode("MenuSettings/Resolution") as XmlElement;
+    //    XmlElement textureQualityNode = xmlDoc.SelectSingleNode("MenuSettings/TextureQuality") as XmlElement;
+    //    XmlElement antialiasingNode = xmlDoc.SelectSingleNode("MenuSettings/Antialiasing") as XmlElement;
+    //    XmlElement vSyncNode = xmlDoc.SelectSingleNode("MenuSettings/vSync") as XmlElement;
+    //    XmlElement musicVolumeNode = xmlDoc.SelectSingleNode("MenuSettings/MusicVolume") as XmlElement;
+    //    XmlElement fullScreenNode = xmlDoc.SelectSingleNode("MenuSettings/FullScreen") as XmlElement;
+
+    //    resolutionNode.InnerText = GameSettings.Resolution.ToString();
+    //    textureQualityNode.InnerText = GameSettings.TextureQuality.ToString();
+    //    antialiasingNode.InnerText = GameSettings.Antialiasing.ToString();
+    //    vSyncNode.InnerText = GameSettings.vSync.ToString();
+    //    musicVolumeNode.InnerText = GameSettings.MusicVolume.ToString();
+    //    fullScreenNode.InnerText = GameSettings.FullScreen.ToString();
+
+    //    xmlDoc.Save(xmlPath);
+    //}
+
+
+    public void SaveSettings()
+    {
+        XmlSerializer xmlSerializer = new XmlSerializer(typeof(GameSettings));
+        FileStream stream = new FileStream(Application.dataPath + "/StreamingAssets/OptionsSettings.xml", FileMode.Create);
+        xmlSerializer.Serialize(stream, m_gameSettings);
+        stream.Close();
+    }
+
+    private void LoadSettings()
+    {
+        try
+        {
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(GameSettings));
+            FileStream stream = new FileStream(Application.dataPath + "/StreamingAssets/OptionsSettings.xml", FileMode.Open);
+
+            m_gameSettings = xmlSerializer.Deserialize(stream) as GameSettings;
+            stream.Close();
+
+            m_resolutionDropdown.value = m_gameSettings.Resolution;
+            m_qualityDropdown.value = m_gameSettings.TextureQuality;
+            m_vSyncDropdown.value = m_gameSettings.vSync;
+            m_musicVolumeSlider.value = m_gameSettings.MusicVolume;
+            m_fullscreenToggle.isOn = m_gameSettings.FullScreen;
+            m_antialiasingDropdown.value = m_gameSettings.Antialiasing;
+        }
+        catch
+        {
+            return;
+        }
     }
 }

@@ -28,7 +28,12 @@ namespace UI
             for (int i = 0; i < InputManager.Length; i++)
             {
                 Cursor cursor = Instantiate(m_cursorPrefab, m_cursorParent);
-                cursor.SetActive(false);
+                cursor.SetID(i);
+                if (i > 0)
+                    cursor.SetActive(false);
+                else
+                    cursor.SetActive(true);
+
                 m_cursorList.Add(cursor);
             }
         }

@@ -14,12 +14,19 @@ namespace UI
 
         private Vector3 cursorVelocity = Vector3.zero;
 
+        public int CursorID { get; private set; }
         public bool IsActive { get; private set; }
 
         private void Awake()
         {
             m_cursorAnimator = GetComponentInChildren<Animator>();
         }
+
+        public void SetID(int id)
+        {
+            CursorID = id;
+        }
+
 
         public void Move(bool press, Vector2 direction)
         {

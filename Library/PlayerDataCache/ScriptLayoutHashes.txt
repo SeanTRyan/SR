@@ -18,6 +18,7 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 607d64d2c4bc76ac9876e6f7b9cc7edf UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
 bfcf23737a6d2cabb7a4b44e9c5ca573 Assembly-CSharp.dll:Player.Management.PlayerRespawner
+31fd2115d68c193875d6b0714d55e45f Assembly-CSharp.dll:UI.ButtonEvents
 659b0310568024c73c7d6c38e0de6ed2 Assembly-CSharp.dll:Visual_FX.Particle
 662b97730c9bc541121906bdcd2e8973 Assembly-CSharp.dll:Survival.Shield
 83da753f3320abe915b24e66da14a4dc Assembly-CSharp.dll:Effectors.Freeze
@@ -179,7 +180,7 @@ e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEng
 e0f7ffd5d5c2abe4b2e16569a21163da UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioRoom
 67a5f2c97205d2e41a8ed7c7ce898f6e UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioSoundfieldExtension
 67a5f2c97205d2e41a8ed7c7ce898f6e UnityEngine.GoogleAudioSpatializer.dll:UnityEngine.Experimental.Audio.Google.GvrAudioSourceExtension
-d2db80e1c479f17b6027795f16828809 Assembly-CSharp.dll:UI.SelectionWindowUI
+582d72bc68b34a1c86b75c0b54a983e8 Assembly-CSharp.dll:UI.SelectionWindowUI
 bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.AudioSpatializerMicrosoft
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInput
 463516d5b5fe8e67a0a24c48f2095b04 UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInputModule
@@ -194,4 +195,3 @@ c8bc5656efd909423ef0632df2ee906c Assembly-CSharp.dll:Survival.Health
 258809efee4ad1b49e88c48b9eadccd5 Assembly-CSharp.dll:UI.LoadLevelUI
 d404c0037229d847e5488d71350f9c38 Assembly-CSharp.dll:Characters.Jump
 6cf68a69185d86a04deda581e326321c Assembly-CSharp.dll:.DynamicBonePlaneCollider
-1a52b79c87f24c5e166ccc21f181e49d Assembly-CSharp.dll:.MenuLoader

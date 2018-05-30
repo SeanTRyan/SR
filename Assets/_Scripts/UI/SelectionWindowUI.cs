@@ -7,46 +7,37 @@ namespace UI
     /// <summary>
     /// Class used for selecting different characters.
     /// </summary>
-    public class SelectionWindowUI : ButtonUI
+    public class SelectionWindowUI : MonoBehaviour
     {
-        [SerializeField] private GameObject m_CharacterPrefab = null;
-        [SerializeField] private Image m_CharacterImage = null;
-        [SerializeField] private bool m_CanBeSelected = true;
+        [SerializeField] private GameObject m_characterPrefab = null;
+        [SerializeField] private Image m_characterPortrait = null;
+        [SerializeField] private bool m_canBeSelected = true;
+        [SerializeField] Vector3 m_extents = Vector3.zero;
 
-        private LayerMask m_LayerMask;
-        private Transform m_Transform;
+        private LayerMask m_layerMask;
+        private Transform m_transform;
 
-        Vector3 m_Extents;
 
         private void Awake()
         {
-            m_AnimatorUI = GetComponent<Animator>();
-            m_Transform = GetComponent<Transform>();
+            m_transform = GetComponent<Transform>();
 
-            m_LayerMask = (1 << (int)Layer.GUI3D) | (1 << (int)Layer.UI);
-
-            m_Extents = GetComponent<BoxCollider>().size;
-
+            m_layerMask = (1 << (int)Layer.GUI3D) | (1 << (int)Layer.UI);
         }
 
-        public override void Select(bool select)
+        public void Raycast()
         {
-            if (select)
-                Raycast();
-        }
-
-        private void Raycast()
-        {
-            Debug.DrawRay(m_Transform.position, Vector3.back, Color.red);
+            Debug.DrawRay(m_transform.position, Vector3.back, Color.red);
 
             RaycastHit hitInfo;
-            if (Physics.BoxCast(m_Transform.position, m_Extents, Vector3.back, out hitInfo, m_Transform.rotation, m_LayerMask))
+            if (Physics.BoxCast(m_transform.position, m_extents, Vector3.back, out hitInfo, m_transform.rotation, m_layerMask))
             {
-                CursorUI cursor = hitInfo.transform.GetComponent<CursorUI>();
+                Cursor cursor = hitInfo.transform.GetComponent<Cursor>();
+
                 if (!cursor)
                     return;
 
-                PlayerSettings.SetCharacter(m_CharacterPrefab, cursor.CursorID - 1);
+                PlayerSettings.SetCharacter(m_characterPrefab, cursor.CursorID);
             }
         }
     }

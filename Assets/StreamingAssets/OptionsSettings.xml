@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <GameSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Resolution>18</Resolution>
-  <TextureQuality>2</TextureQuality>
-  <Antialiasing>2</Antialiasing>
-  <vSync>0</vSync>
-  <MusicVolume>94.70985</MusicVolume>
-  <FullScreen>false</FullScreen>
+  <TextureQuality>5</TextureQuality>
+  <Antialiasing>3</Antialiasing>
+  <vSync>1</vSync>
+  <MusicVolume>37.0187035</MusicVolume>
+  <FullScreen>true</FullScreen>
 </GameSettings>

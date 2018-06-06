@@ -7,7 +7,7 @@ namespace Boxes
     /// </summary>
     public class Hurtbox : Box
     {
-        public delegate void HurtDelegate(int hurtIndex);
+        public delegate void HurtDelegate(int hurtIndex, Transform position);
         public event HurtDelegate HurtEvent;
 
         private int m_hurtIndex = 0;
@@ -27,17 +27,17 @@ namespace Boxes
 
         private void OnTriggerEnter(Collider other)
         {
-            Update_HitEvent(m_hurtIndex);
+            Update_HitEvent(m_hurtIndex, transform);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            Update_HitEvent(0);
+            //Update_HitEvent(0);
         }
 
-        private void Update_HitEvent(int hurtIndex)
+        private void Update_HitEvent(int hurtIndex, Transform position)
         {
-            HurtEvent?.Invoke(hurtIndex);
+            HurtEvent?.Invoke(hurtIndex, position);
         }
 
         public void Enabled(bool enabled)

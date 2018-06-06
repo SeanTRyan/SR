@@ -34,6 +34,7 @@ namespace UI
 
         private IEnumerator MenuRoutine(float alphaValue, CanvasGroup menuGroup, bool active)
         {
+            yield return new WaitForSeconds(0.1f);
             if (active)
                 menuGroup.gameObject.SetActive(true);
 

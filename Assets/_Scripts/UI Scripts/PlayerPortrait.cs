@@ -5,8 +5,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Image))]
 public class PlayerPortrait : MonoBehaviour
 {
-    [SerializeField] private GameObject m_parentPanel = null;
     [SerializeField] private int m_playerPortraitIndex = 0;
+    [SerializeField] private bool m_resetOnDisable = false;
 
     private Image m_characterImage = null;
 
@@ -17,8 +17,11 @@ public class PlayerPortrait : MonoBehaviour
 
     private void OnEnable()
     {
-        PlayerSettings.SetCharacter(null, m_playerPortraitIndex);
-        PlayerSettings.SetCharacterPortrait(null, m_playerPortraitIndex);
+        if (m_resetOnDisable)
+        {
+            PlayerSettings.SetCharacter(null, m_playerPortraitIndex);
+            PlayerSettings.SetCharacterPortrait(null, m_playerPortraitIndex);
+        }
     }
 
     // Update is called once per frame

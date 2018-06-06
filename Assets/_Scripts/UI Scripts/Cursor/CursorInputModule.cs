@@ -19,6 +19,8 @@ namespace UI
         private Vector2 m_convertToScreenPos = Vector2.zero;
         private PointerEventData m_pointer = null;
 
+        public List<Cursor> CursorList { get { return m_cursorList; } }
+
         protected sealed override void Start()
         {
             base.Start();

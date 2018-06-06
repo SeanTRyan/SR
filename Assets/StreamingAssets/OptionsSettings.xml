@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <GameSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Resolution>18</Resolution>
+  <Resolution>17</Resolution>
   <TextureQuality>5</TextureQuality>
   <Antialiasing>3</Antialiasing>
   <vSync>1</vSync>

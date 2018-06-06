@@ -2425,8 +2425,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa38d61a8e63e44e9b5ae5ed066dcbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_parentPanel: {fileID: 218976745}
   m_playerPortraitIndex: 3
+  m_resetOnDisable: 1
 --- !u!1 &483374603
 GameObject:
   m_ObjectHideFlags: 0
@@ -3935,8 +3935,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa38d61a8e63e44e9b5ae5ed066dcbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_parentPanel: {fileID: 218976745}
   m_playerPortraitIndex: 1
+  m_resetOnDisable: 1
 --- !u!1 &796120142
 GameObject:
   m_ObjectHideFlags: 0
@@ -4130,7 +4130,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &809185123
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5140,8 +5140,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa38d61a8e63e44e9b5ae5ed066dcbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_parentPanel: {fileID: 218976745}
   m_playerPortraitIndex: 2
+  m_resetOnDisable: 1
 --- !u!1 &1013463918
 GameObject:
   m_ObjectHideFlags: 0
@@ -8687,7 +8687,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4056de4104d9d294997b3f6be87f9212, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_sceneChoice: 2
+  m_sceneChoice: 3
   m_sceneLoadPanel: {fileID: 0}
   m_fadeOverlay: {fileID: 0}
   m_loadingIcon: {fileID: 0}
@@ -10856,8 +10856,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fa38d61a8e63e44e9b5ae5ed066dcbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_parentPanel: {fileID: 218976745}
   m_playerPortraitIndex: 0
+  m_resetOnDisable: 1
 --- !u!1 &2031473186
 GameObject:
   m_ObjectHideFlags: 0

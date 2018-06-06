@@ -1,5 +1,6 @@
 ﻿using Characters;
 using Managers;
+using Player.Management;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,7 @@ public class DetermineWinner : MonoBehaviour
 
     private void FindWinner(GameObject[] players)
     {
+        int firstPlace = 1;
         for (int i = 0; i < players.Length; i++)
         {
             for (int j = i + 1; j < players.Length; j++)
@@ -30,14 +32,19 @@ public class DetermineWinner : MonoBehaviour
                     GameObject temp = players[i];
                     players[i] = players[j];
                     players[j] = temp;
+                    firstPlace = j + 1;
                 }
             }
         }
 
         for (int i = 0; i < m_positions.Length; i++)
-            players[i].transform.position = m_positions[i].position;
+        {
+            if (i >= players.Length)
+                break;
+            Instantiate(players[i], m_positions[i], false);
+        }
 
-        m_victoryText.text = "Player " + players[0].GetComponent<CharacterManager>().PlayerNumber + " wins!";
+        m_victoryText.text = "Player " + PlayerManager.Placement[0] + " wins!";
     }
 
     // Update is called once per frame

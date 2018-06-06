@@ -79848,12 +79848,4 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_GenerateMotionCurves: 0
-  m_Events:
-  - time: 0.041666668
-    functionName: PlayEffect
-    data: 
-    objectReferenceParameter: {fileID: 1951728998810972, guid: 92301adc0b9eb354baee8ececb075f66,
-      type: 2}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
+  m_Events: []

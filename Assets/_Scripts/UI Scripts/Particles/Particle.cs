@@ -11,7 +11,7 @@ namespace Particles
         [SerializeField] private GameObject m_particlePrefab = null;
         [SerializeField] private ParticleType m_particleType = ParticleType.None;
 
-        private ParticleSystem m_particleSystem = null;
+        private ParticleSystem[] m_particleSystem = null;
         private bool m_isNull = true;
 
         public ParticleType ParticleType { get { return m_particleType; } }
@@ -22,15 +22,18 @@ namespace Particles
             {
                 m_particlePrefab = GameObject.Instantiate(m_particlePrefab, parent) as GameObject;
 
-                m_particleSystem = m_particlePrefab.GetComponent<ParticleSystem>();
+                m_particleSystem = m_particlePrefab.GetComponentsInChildren<ParticleSystem>();
 
                 m_isNull = false;
 
                 return;
             }
 
-            m_particleSystem.Clear();
-            m_particleSystem.Play();
+            for (int i = 0; i < m_particleSystem.Length; i++)
+            {
+                m_particleSystem[i].Clear();
+                m_particleSystem[i].Play();
+            }
         }
     }
 }

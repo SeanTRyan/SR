@@ -31,6 +31,7 @@ namespace Characters
 
         private Animator m_animator;
 
+        private Transform m_hitPosition;
         #region Controls
         //Device for controlling the player
         private Device m_device = null;
@@ -91,9 +92,10 @@ namespace Characters
             }
         }
 
-        public void Update_HurtIndex(int hurtIndex)
+        public void Update_HurtIndex(int hurtIndex, Transform hitPosition)
         {
             m_hurtIndex = hurtIndex;
+            m_hitPosition = hitPosition;
         }
 
         public void InitialiseDevice(int playerNumber)
@@ -107,7 +109,7 @@ namespace Characters
 
         private void Update()
         {
-            if (Pause.IsPaused)
+            if (Pause.IsPaused || m_message == Broadcasts.BroadcastMessage.Stop)
                 return;
 
             AnimateJump();
@@ -148,7 +150,7 @@ namespace Characters
 
         private void FixedUpdate()
         {
-            if (Pause.IsPaused)
+            if (Pause.IsPaused || m_message == Broadcasts.BroadcastMessage.Stop)
                 return;
 
             if (m_message == Broadcasts.BroadcastMessage.Stunned ||
@@ -161,6 +163,11 @@ namespace Characters
                 ExecuteMove();
 
             ExecuteEvade();
+        }
+
+        public void PlayParticle(ParticleType particleType)
+        {
+            m_particleList.CreateParticle(transform, m_hitPosition.position, particleType);
         }
 
         private void ExecuteJump()

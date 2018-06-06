@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Managers;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,7 +11,7 @@ namespace UI
     /// </summary>
     public class LoadLevel : MonoBehaviour
     {
-        public enum SceneChoice { MainMenu, Play, Quit, None }
+        public enum SceneChoice { MainMenu, Play, Victory, Quit, None }
 
         [SerializeField] private SceneChoice m_sceneChoice = SceneChoice.None;
         [SerializeField] private GameObject m_sceneLoadPanel = null;
@@ -36,6 +37,7 @@ namespace UI
         public void Load()
         {
             m_sceneLoadPanel.SetActive(true);
+            Time.timeScale = 1f;
             StartCoroutine(LoadAsync(m_sceneChoice));
         }
 

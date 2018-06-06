@@ -52,7 +52,7 @@ namespace Spawners
         {
             yield return new WaitForSeconds(m_respawnTime);
             Player.transform.position = m_respawnPoint.position;
-            m_health.RestoreHealth(m_health.MaxHealth);
+            m_health.RestoreHealth(m_health.MaxHealth + 100f);
             m_respawnAnimator.SetBool("Respawn", true);
 
             yield return new WaitForSeconds(2f);
@@ -70,9 +70,6 @@ namespace Spawners
             Broadcast.Send<IBroadcast>(Player, (x, y) => x.Inform(Broadcasts.BroadcastMessage.None));
         }
 
-        public void Inform(BroadcastMessage message)
-        {
-            throw new System.NotImplementedException();
-        }
+        public void Inform(BroadcastMessage message) { }
     }
 }

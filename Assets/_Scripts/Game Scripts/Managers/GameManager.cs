@@ -1,37 +1,64 @@
-﻿using Player.Management;
+﻿using Broadcasts;
+using Characters;
+using Player.Management;
 using System.Collections;
+using UI;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Managers
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviour, IBroadcast
     {
         [SerializeField] private Image m_fadeOutImage = null;
+        [SerializeField] private GameObject m_textPanel = null;
         [SerializeField] private Text[] m_startText = null;
         [SerializeField] private float m_fadeOutTime = 0.3f;
 
         private PlayerManager m_playerManager = null;
         private TimeManager m_timeManager = null;
+        private LoadLevel m_loadLevel = null;
 
         public static int CharactersDead;
 
         private void Awake()
         {
+            m_loadLevel = GetComponent<LoadLevel>();
+
             CharactersDead = 0;
             m_timeManager = GetComponent<TimeManager>();
             m_playerManager = GetComponent<PlayerManager>();
 
-            //for (int i = 0; i < m_playerManager.Length; i++)
-                m_playerManager.Initialise();
+            m_playerManager.Initialise();
 
+            m_fadeOutImage.gameObject.SetActive(true);
             m_fadeOutImage.CrossFadeAlpha(1f, 0f, true);
         }
 
         private IEnumerator Start()
         {
-            m_fadeOutImage.CrossFadeAlpha(0f, m_fadeOutTime, false);
+            MessagePlayer(Broadcasts.BroadcastMessage.Stop);
+            m_textPanel.SetActive(true);
+            m_fadeOutImage.CrossFadeAlpha(0f, m_fadeOutTime, true);
             yield return new WaitForSeconds(m_fadeOutTime + 0.2f);
+
+            for (int i = 0; i < m_startText.Length; i++)
+            {
+                m_startText[i].gameObject.SetActive(true);
+                yield return new WaitForSeconds(1f);
+                m_startText[i].gameObject.SetActive(false);
+            }
+            m_textPanel.SetActive(false);
+            MessagePlayer(Broadcasts.BroadcastMessage.None);
+        }
+
+        private void MessagePlayer(BroadcastMessage message)
+        {
+            for (int i = 0; i < m_playerManager.Length; i++)
+            {
+                GameObject player = m_playerManager.GetPlayer(i);
+                Broadcast.Send<IBroadcast>(player, (x, y) => x.Inform(message));
+            }
         }
 
         private void Update()
@@ -49,8 +76,23 @@ namespace Managers
 
             if (m_timeManager.TimeEnded || gameOver)
             {
-                Debug.Log("Game Over");
+                DetermineWinner();
+                m_loadLevel.Load();
                 return;
+            }
+        }
+
+        private void DetermineWinner()
+        {
+            for (int i = 0; i < m_playerManager.Length; i++)
+            {
+                for (int j = i + 1; j < m_playerManager.Length; j++)
+                {
+                    uint lives = m_playerManager.GetPlayer(i).GetComponent<Death>().NumberOfLives;
+                    uint lives2 = m_playerManager.GetPlayer(j).GetComponent<Death>().NumberOfLives;
+
+                    PlayerManager.Placement[i] = (lives < lives2) ? ((uint)j + 1) : ((uint)i + 1);
+                }
             }
         }
 
@@ -61,5 +103,7 @@ namespace Managers
 
             m_timeManager.Execute();
         }
+
+        public void Inform(BroadcastMessage message) { }
     }
 }

@@ -8,6 +8,7 @@
         Respawning,
         Stunned,
 
-        Paused
+        Paused,
+        Stop,
     }
 }

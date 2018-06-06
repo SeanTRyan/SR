@@ -1,4 +1,5 @@
-﻿using Player.Management;
+﻿using Managers;
+using Player.Management;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,6 +38,9 @@ namespace Cameras
 
         private void LateUpdate()
         {
+            if (Pause.IsPaused)
+                return;
+
             CalculateCameraLocations();
 
             Move();

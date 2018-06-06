@@ -3,6 +3,7 @@ using Character.UI;
 using Characters;
 using Managers;
 using Spawners;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Player.Management
@@ -18,9 +19,15 @@ namespace Player.Management
         [SerializeField] private CharacterUI[] m_playerUI = null;
         [SerializeField] private bool m_manualInstantiation = false;
 
-        private int currentIndex = 0;
-
+        public static uint[] Placement { get; private set; }
         public int Length { get { return m_characterPrefabs.Length; } }
+
+        private void Awake()
+        {
+            Placement = new uint[4];
+            for (int i = 0; i < Placement.Length; i++)
+                Placement[i] = 0;
+        }
 
         public void Initialise()
         {
@@ -37,7 +44,6 @@ namespace Player.Management
 
         private void CreateCharacter()
         {
-            currentIndex = Length;
             for (int i = 0; i < Length; i++)
             {
                 m_playerSpawner[i].Initialise(m_characterPrefabs[i]);
